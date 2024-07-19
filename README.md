@@ -1,2 +1,2 @@
-# dart_conversion
-A simple and small dart library to allow seamless conversion of data types.
+A sample command-line application with an entrypoint in `bin/`, library code
+in `lib/`, and example unit test in `test/`.
