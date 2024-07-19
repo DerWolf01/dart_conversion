@@ -47,7 +47,7 @@ class ConversionService {
   static Future<T> requestToObject<T>(HttpRequest request, {Type? type}) async {
     return request.method == "GET"
         ? mapToObject<T>(await uriParamsStreamToMap(request), type: type)
-        : jsonDecode(await utf8.decodeStream(request));
+        : mapToObject<T>(jsonDecode(await utf8.decodeStream(request)));
   }
 
   static uriParamsStreamToMap(Stream<List<int>> stream) async {
