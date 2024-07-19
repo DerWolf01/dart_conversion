@@ -60,7 +60,7 @@ class ConversionService {
         ));
   }
 
-  static String convertToStringOrJson(dynamic object) {
+  static convertToStringOrJson(dynamic object) {
     if (object is String || object is num || object is bool) {
       return object.toString();
     }
