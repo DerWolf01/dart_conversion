@@ -45,10 +45,12 @@ class ConversionService {
   }
 
   static Future<T> requestToObject<T>(HttpRequest request, {Type? type}) async {
-    return mapToObject<T>(await streamToMap(request), type: type);
+    return request.method == "GET"
+        ? mapToObject<T>(await uriParamsStreamToMap(request), type: type)
+        : jsonDecode(await utf8.decodeStream(request));
   }
 
-  static streamToMap(Stream<List<int>> stream) async {
+  static uriParamsStreamToMap(Stream<List<int>> stream) async {
     final body = await utf8.decodeStream(stream);
     print(body.split("&").map(
           (e) => MapEntry<String, dynamic>(e.split("=")[0], e.split("=")[1]),
@@ -58,7 +60,7 @@ class ConversionService {
         ));
   }
 
-  static convertToStringOrJson(dynamic object) {
+  static String convertToStringOrJson(dynamic object) {
     if (object is String || object is num || object is bool) {
       return object.toString();
     }
