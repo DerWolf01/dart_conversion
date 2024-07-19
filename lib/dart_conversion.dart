@@ -1,4 +1,5 @@
 library dart_conversion;
+
 export "./dart_conversion.dart";
 import 'dart:async';
 import 'dart:convert';
@@ -26,7 +27,8 @@ class ConversionService {
 
   static T mapToObject<T>(Map<String, dynamic> map, {Type? type}) {
     var classMirror = reflectClass(type ?? T);
-    var instance = classMirror.newInstance(const Symbol(''), map.values.toList());
+    var instance =
+        classMirror.newInstance(const Symbol(''), map.values.toList());
     //
     // map.forEach((key, value) {
     //   var fieldName = MirrorSystem.getSymbol(key);
@@ -50,9 +52,20 @@ class ConversionService {
     final body = await utf8.decodeStream(stream);
     print(body.split("&").map(
           (e) => MapEntry<String, dynamic>(e.split("=")[0], e.split("=")[1]),
-    ));
+        ));
     return Map<String, dynamic>.fromEntries(body.split("&").map(
           (e) => MapEntry<String, dynamic>(e.split("=")[0], e.split("=")[1]),
-    ));
+        ));
+  }
+
+  static convertToStringOrJson(dynamic object) {
+    if (object is String || object is num || object is bool) {
+      return object.toString();
+    }
+    try {
+      return jsonEncode(objectToMap(object));
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 }
