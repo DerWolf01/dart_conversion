@@ -60,8 +60,32 @@ class ConversionService {
           (e) => MapEntry<String, dynamic>(e.split("=")[0], e.split("=")[1]),
         ));
   }
+  /// Converts a JSON string to an object of type T.
+  ///
+  /// \param body The JSON string to convert.
+  /// \return An instance of type T.
+  static T? convert<T>(String body) {
+    if (T == dynamic) {
+      return jsonDecode(body) as T;
+    }
+    if (T == String) {
+      return body as T;
+    } else if (T == int) {
+      return int.parse(body) as T;
+    } else if (T == double) {
+      return double.parse(body) as T;
+    } else if (T is bool) {
+      return (body == "true") as T;
+    }
 
-  static convertToStringOrJson(dynamic object) {
+    return mapToObject<T>(jsonDecode(body));
+  }
+
+  /// Converts an object to a JSON string or its string representation.
+  ///
+  /// \param object The object to convert.
+  /// \return A JSON string or string representation of the object.
+  static String convertToStringOrJson(dynamic object) {
     if (object is String || object is num || object is bool) {
       return object.toString();
     }
