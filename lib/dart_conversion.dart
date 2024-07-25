@@ -18,7 +18,7 @@ class ConversionService {
       final name = entry.key;
       if (declaration is VariableMirror && !declaration.isStatic) {
         var fieldName = MirrorSystem.getName(name);
-        var fieldValue = classMirror.getField(name).reflectee;
+        var fieldValue = mirror.getField(name).reflectee;
         if (isPrimitive(fieldValue)) {
           map[fieldName] = fieldValue;
         } else if (fieldValue is List) {
