@@ -39,7 +39,8 @@ class ConversionService {
         map
             .map(
               (key, value) {
-                final type = classMirror.declarations[key] as VariableMirror;
+                final type =
+                    classMirror.declarations[Symbol(key)] as VariableMirror;
                 if (isPrimitive(type.type.reflectedType)) {
                   return MapEntry(key, value);
                 } else if (value is List) {
