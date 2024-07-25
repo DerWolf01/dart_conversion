@@ -13,30 +13,53 @@ class ConversionService {
 
     var map = <String, dynamic>{};
 
-    classMirror.declarations.forEach((symbol, declaration) {
+    for (final entry in classMirror.declarations.entries) {
+      final declaration = entry.value;
+      final name = entry.key;
       if (declaration is VariableMirror && !declaration.isStatic) {
-        var fieldName = MirrorSystem.getName(symbol);
-        var fieldValue = mirror.getField(symbol).reflectee;
-
-        map[fieldName] = fieldValue;
+        var fieldName = MirrorSystem.getName(name);
+        var fieldValue = classMirror.getField(name).reflectee;
+        if (isPrimitive(fieldValue)) {
+          map[fieldName] = fieldValue;
+        } else if (fieldValue is List) {
+          map[fieldName] = fieldValue.map((e) => objectToMap(e)).toList();
+        } else {
+          map[fieldName] = objectToMap(fieldValue);
+        }
       }
-    });
-
+    }
     return map;
   }
 
   static T mapToObject<T>(Map<String, dynamic> map, {Type? type}) {
     var classMirror = reflectClass(type ?? T);
-    var instance =
-        classMirror.newInstance(const Symbol(''), map.values.toList());
-    //
-    // map.forEach((key, value) {
-    //   var fieldName = MirrorSystem.getSymbol(key);
-    //   var fieldValue = value;
-    //   instance.setField(fieldName, fieldValue);
-    // });
 
-    return instance.reflectee;
+    InstanceMirror instance = classMirror.newInstance(
+        Symbol(""),
+        map
+            .map(
+              (key, value) {
+                final type = classMirror.declarations[key] as VariableMirror;
+                if (isPrimitive(type.type.reflectedType)) {
+                  return MapEntry(key, value);
+                } else if (value is List) {
+                  return MapEntry(
+                      key,
+                      value
+                          .map((e) =>
+                              mapToObject(e, type: type.type.reflectedType))
+                          .toList());
+                } else if (value is Map<String, dynamic>) {
+                  return MapEntry(
+                      key, mapToObject(value, type: type.type.reflectedType));
+                } else {
+                  return MapEntry(key, value);
+                }
+              },
+            )
+            .values
+            .toList());
+    return instance.reflectee as T;
   }
 
   static Future<Map<String, dynamic>> requestToMap(HttpRequest request) async {
@@ -60,11 +83,12 @@ class ConversionService {
           (e) => MapEntry<String, dynamic>(e.split("=")[0], e.split("=")[1]),
         ));
   }
+
   /// Converts a JSON string to an object of type T.
   ///
   /// \param body The JSON string to convert.
   /// \return An instance of type T.
-  static T? convert<T>(String body) {
+  static Future<T?> convert<T>(dynamic body) async {
     if (T == dynamic) {
       return jsonDecode(body) as T;
     }
@@ -95,4 +119,19 @@ class ConversionService {
       throw Exception(e);
     }
   }
+
+  static bool isPrimitive(dynamic object) => (object is String ||
+      object is num ||
+      object is bool ||
+      object is List<String> ||
+      object is List<int> ||
+      object is List<bool> ||
+      object == String ||
+      object == num ||
+      object == bool ||
+      object == (List<String>) ||
+      object == (List<int>) ||
+      object == (List<double>) ||
+      object == (List<num>) ||
+      object == (List<bool>));
 }
