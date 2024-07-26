@@ -8,13 +8,15 @@ import 'dart:mirrors';
 
 class ConversionService {
   static Map<Symbol, DeclarationMirror> declarations(ClassMirror classMirror) {
-    Map<Symbol, DeclarationMirror> declarations = {...classMirror.declarations};
+    Map<Symbol, DeclarationMirror> decs = {...classMirror.declarations};
     ClassMirror? superClass = classMirror.superclass;
     while (superClass != null) {
-      declarations.addAll(superClass.declarations);
+      decs.addAll(superClass.declarations);
       superClass = superClass.superclass;
     }
-    return declarations;
+    return Map.fromEntries(decs.entries.where(
+      (entry) => entry.value is VariableMirror,
+    ));
   }
 
   static Map<String, dynamic> objectToMap(dynamic object) {
@@ -109,7 +111,7 @@ class ConversionService {
       return int.parse(body) as T;
     } else if (T == double) {
       return double.parse(body) as T;
-    } else if (T is bool) {
+    } else if (T == bool) {
       return (body == "true") as T;
     }
 
