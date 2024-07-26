@@ -8,7 +8,7 @@ import 'dart:mirrors';
 
 class ConversionService {
   static Map<Symbol, DeclarationMirror> declarations(ClassMirror classMirror) {
-    final declarations = classMirror.declarations;
+    Map<Symbol, DeclarationMirror> declarations = classMirror.declarations;
     ClassMirror? superClass = classMirror.superclass;
     while (superClass != null) {
       declarations.addAll(superClass.declarations);
