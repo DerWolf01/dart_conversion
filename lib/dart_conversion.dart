@@ -7,13 +7,23 @@ import 'dart:io';
 import 'dart:mirrors';
 
 class ConversionService {
+  static Map<Symbol, DeclarationMirror> declarations(ClassMirror classMirror) {
+    final declarations = classMirror.declarations;
+    ClassMirror? superClass = classMirror.superclass;
+    while (superClass != null) {
+      declarations.addAll(superClass.declarations);
+      superClass = superClass.superclass;
+    }
+    return declarations;
+  }
+
   static Map<String, dynamic> objectToMap(dynamic object) {
     var mirror = reflect(object);
     var classMirror = mirror.type;
 
     var map = <String, dynamic>{};
 
-    for (final entry in classMirror.declarations.entries) {
+    for (final entry in declarations(classMirror).entries) {
       final declaration = entry.value;
       final name = entry.key;
       if (declaration is VariableMirror && !declaration.isStatic) {
@@ -33,14 +43,13 @@ class ConversionService {
 
   static T mapToObject<T>(Map<String, dynamic> map, {Type? type}) {
     var classMirror = reflectClass(type ?? T);
-
+    final declarations = ConversionService.declarations(classMirror);
     InstanceMirror instance = classMirror.newInstance(
         Symbol(""),
         map
             .map(
               (key, value) {
-                final type =
-                    classMirror.declarations[Symbol(key)] as VariableMirror;
+                final type = declarations[Symbol(key)] as VariableMirror;
                 if (isPrimitive(type.type.reflectedType)) {
                   return MapEntry(key, value);
                 } else if (value is List) {
