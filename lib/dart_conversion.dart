@@ -116,7 +116,7 @@ class ConversionService {
     return mapToObject<T>(jsonDecode(body));
   }
 
-  static Future<dynamic> convertUsingType(dynamic body, Type T) async {
+  static dynamic convertUsingType(dynamic body, Type T) async {
     if (T == dynamic) {
       return jsonDecode(body);
     }
