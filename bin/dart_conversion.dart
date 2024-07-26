@@ -2,24 +2,23 @@ import 'package:dart_conversion/dart_conversion.dart';
 
 void main() {
   print(ConversionService.mapToObject(
-      ConversionService.objectToMap(SignUpForm(User("test"))),
+      ConversionService.objectToMap(SignUpForm.init(User.init("test"))),
       type: SignUpForm));
 }
 
 class SignUpResult {
-  const SignUpResult(this.token);
-
-  final String token;
+  late final String token;
 }
 
 class User {
-  const User(this.name);
-
-  final String name;
+  User();
+  User.init(this.name);
+  late final String name;
 }
 
 class SignUpForm {
-  const SignUpForm(this.user);
+  SignUpForm();
+  SignUpForm.init(this.user);
 
-  final User user;
+  late final User user;
 }

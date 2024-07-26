@@ -22,6 +22,9 @@ class ConversionService {
   static Map<String, dynamic> objectToMap(dynamic object) {
     var mirror = reflect(object);
     var classMirror = mirror.type;
+    final constructor = classMirror.declarations.values.firstWhere(
+      (element) => element is MethodMirror && element.isConstructor,
+    ) as MethodMirror;
 
     var map = <String, dynamic>{};
 
@@ -45,33 +48,28 @@ class ConversionService {
 
   static T mapToObject<T>(Map<String, dynamic> map, {Type? type}) {
     var classMirror = reflectClass(type ?? T);
-    final declarations = ConversionService.declarations(classMirror);
-    InstanceMirror instance = classMirror.newInstance(
-        Symbol(""),
-        map
-            .map(
-              (key, value) {
-                final type = declarations[Symbol(key)] as VariableMirror;
-                if (isPrimitive(type.type.reflectedType)) {
-                  return MapEntry(
-                      key, convertUsingType(value, type.type.reflectedType));
-                } else if (value is List) {
-                  return MapEntry(
-                      key,
-                      value
-                          .map((e) =>
-                              mapToObject(e, type: type.type.reflectedType))
-                          .toList());
-                } else if (value is Map<String, dynamic>) {
-                  return MapEntry(
-                      key, mapToObject(value, type: type.type.reflectedType));
-                } else {
-                  return MapEntry(key, value);
-                }
-              },
-            )
-            .values
-            .toList());
+
+    InstanceMirror instance = classMirror.newInstance(Symbol(""), []);
+    for (final decEntry in declarations(classMirror).entries) {
+      final key = decEntry.key;
+      final dec = decEntry.value as VariableMirror;
+      final value = map[MirrorSystem.getName(key)];
+      if (isPrimitive(dec.type.reflectedType)) {
+        instance.setField(key, convertUsingType(value, dec.type.reflectedType));
+      } else if (value is List) {
+        instance.setField(
+            key,
+            value
+                .map((e) => mapToObject(e, type: dec.type.reflectedType))
+                .toList());
+      } else if (value is Map<String, dynamic>) {
+        instance.setField(
+            key, mapToObject(value, type: dec.type.reflectedType));
+      } else {
+        instance.setField(
+            key, mapToObject(value, type: dec.type.reflectedType));
+      }
+    }
     return instance.reflectee as T;
   }
 
