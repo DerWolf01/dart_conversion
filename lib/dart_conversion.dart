@@ -51,7 +51,8 @@ class ConversionService {
               (key, value) {
                 final type = declarations[Symbol(key)] as VariableMirror;
                 if (isPrimitive(type.type.reflectedType)) {
-                  return MapEntry(key, value);
+                  return MapEntry(
+                      key, convertUsingType(value, type.type.reflectedType));
                 } else if (value is List) {
                   return MapEntry(
                       key,
@@ -113,6 +114,23 @@ class ConversionService {
     }
 
     return mapToObject<T>(jsonDecode(body));
+  }
+
+  static Future<dynamic> convertUsingType(dynamic body, Type T) async {
+    if (T == dynamic) {
+      return jsonDecode(body);
+    }
+    if (T == String) {
+      return body;
+    } else if (T == int) {
+      return int.parse(body);
+    } else if (T == double) {
+      return double.parse(body);
+    } else if (T is bool) {
+      return (body == "true");
+    }
+
+    return mapToObject(jsonDecode(body), type: T);
   }
 
   /// Converts an object to a JSON string or its string representation.
