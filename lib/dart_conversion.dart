@@ -99,7 +99,7 @@ class ConversionService {
   ///
   /// \param body The JSON string to convert.
   /// \return An instance of type T.
-  static Future<T?> convert<T>(dynamic body) async {
+  static T? convert<T>(dynamic body) {
     if (T == dynamic) {
       return jsonDecode(body) as T;
     }
@@ -116,7 +116,7 @@ class ConversionService {
     return mapToObject<T>(jsonDecode(body));
   }
 
-  static dynamic convertUsingType(dynamic body, Type T) async {
+  static dynamic convertUsingType(dynamic body, Type T) {
     if (T == dynamic) {
       return jsonDecode(body);
     }
