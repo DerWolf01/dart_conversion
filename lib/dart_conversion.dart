@@ -35,7 +35,8 @@ class ConversionService {
         var fieldName = MirrorSystem.getName(name);
         var fieldValue = mirror.getField(name).reflectee;
         if (isPrimitive(fieldValue)) {
-          map[fieldName] = fieldValue;
+          map[fieldName] =
+              convertUsingType(fieldValue, declaration.type.reflectedType);
         } else if (fieldValue is List) {
           map[fieldName] = fieldValue.map((e) => objectToMap(e)).toList();
         } else {
@@ -150,12 +151,16 @@ class ConversionService {
 
   static bool isPrimitive(dynamic object) => (object is String ||
       object is num ||
+      object is int ||
+      object is double ||
       object is bool ||
       object is List<String> ||
       object is List<int> ||
       object is List<bool> ||
       object == String ||
       object == num ||
+      object == int ||
+      object == double ||
       object == bool ||
       object == (List<String>) ||
       object == (List<int>) ||
