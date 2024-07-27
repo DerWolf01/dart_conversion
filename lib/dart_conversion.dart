@@ -60,6 +60,10 @@ class ConversionService {
       final dec = decEntry.value as VariableMirror;
       final value = map[MirrorSystem.getName(key)];
       if (isPrimitive(dec.type.reflectedType)) {
+        if (value.runtimeType == dec.type.reflectedType) {
+          instance.setField(key, value);
+          continue;
+        }
         instance.setField(key, convertUsingType(value, dec.type.reflectedType));
       } else if (value is List) {
         instance.setField(
