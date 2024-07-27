@@ -35,8 +35,12 @@ class ConversionService {
         var fieldName = MirrorSystem.getName(name);
         var fieldValue = mirror.getField(name).reflectee;
         if (isPrimitive(fieldValue)) {
-          map[fieldName] =
-              convertUsingType(fieldValue, declaration.type.reflectedType);
+          if (fieldValue.runtimeType == declaration.type.reflectedType) {
+            map[fieldName] = fieldValue;
+          } else {
+            map[fieldName] =
+                convertUsingType(fieldValue, declaration.type.reflectedType);
+          }
         } else if (fieldValue is List) {
           map[fieldName] = fieldValue.map((e) => objectToMap(e)).toList();
         } else {
