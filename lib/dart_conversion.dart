@@ -75,6 +75,10 @@ class ConversionService {
         instance.setField(
             key, mapToObject(value, type: dec.type.reflectedType));
       } else {
+        if (value.runtimeType == dec.type.reflectedType) {
+          instance.setField(key, value);
+          continue;
+        }
         instance.setField(
             key, mapToObject(value, type: dec.type.reflectedType));
       }
