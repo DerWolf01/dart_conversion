@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:mirrors';
+import 'dart:typed_data';
 
 class ConversionService {
   static Map<Symbol, DeclarationMirror> declarations(ClassMirror classMirror) {
@@ -22,9 +23,6 @@ class ConversionService {
   static Map<String, dynamic> objectToMap(dynamic object) {
     var mirror = reflect(object);
     var classMirror = mirror.type;
-    final constructor = classMirror.declarations.values.firstWhere(
-      (element) => element is MethodMirror && element.isConstructor,
-    ) as MethodMirror;
 
     var map = <String, dynamic>{};
 
@@ -41,6 +39,8 @@ class ConversionService {
             map[fieldName] =
                 convertUsingType(fieldValue, declaration.type.reflectedType);
           }
+        } else if (fieldValue is File) {
+          map[fieldName] = fieldValue.readAsBytesSync();
         } else if (fieldValue is List) {
           map[fieldName] = fieldValue.map((e) => objectToMap(e)).toList();
         } else {
@@ -59,6 +59,11 @@ class ConversionService {
       final key = decEntry.key;
       final dec = decEntry.value as VariableMirror;
       final value = map[MirrorSystem.getName(key)];
+      if (classMirror.reflectedType is File ||
+          classMirror.reflectedType == File && value is List<int>) {
+        instance.setField(key, File.fromRawPath(Uint8List.fromList(value)));
+        continue;
+      }
       if (isPrimitive(dec.type.reflectedType)) {
         if (value.runtimeType == dec.type.reflectedType) {
           instance.setField(key, value);
@@ -160,6 +165,10 @@ class ConversionService {
       throw Exception(e);
     }
   }
+
+  static bool isImage(dynamic object) => object is File;
+
+  static bool isByteList(dynamic object) => object is List<int>;
 
   static bool isPrimitive(dynamic object) => (object is String ||
       object is num ||
