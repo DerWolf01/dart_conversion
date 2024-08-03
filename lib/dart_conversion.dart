@@ -30,7 +30,7 @@ class ConversionService {
       final declaration = entry.value;
       final name = entry.key;
       print(
-          "name: $name declaration: $declaration value: ${mirror.getField(name).reflectee}");
+          "name: $name declaration: $declaration value: ${mirror.getField(name).reflectee} ${(declaration as VariableMirror).type.reflectedType}");
       if (declaration is VariableMirror && !declaration.isStatic) {
         var fieldName = MirrorSystem.getName(name);
         var fieldValue = mirror.getField(name).reflectee;
