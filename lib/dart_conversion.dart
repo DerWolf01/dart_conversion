@@ -29,6 +29,8 @@ class ConversionService {
     for (final entry in declarations(classMirror).entries) {
       final declaration = entry.value;
       final name = entry.key;
+      print(
+          "name: $name declaration: $declaration value: ${mirror.getField(name).reflectee}");
       if (declaration is VariableMirror && !declaration.isStatic) {
         var fieldName = MirrorSystem.getName(name);
         var fieldValue = mirror.getField(name).reflectee;
@@ -58,7 +60,9 @@ class ConversionService {
     for (final decEntry in declarations(classMirror).entries) {
       final key = decEntry.key;
       final dec = decEntry.value as VariableMirror;
+
       final value = map[MirrorSystem.getName(key)];
+      print("key: $key dec: $dec value: $value");
       if (classMirror.reflectedType is File ||
           classMirror.reflectedType == File && value is List<int>) {
         instance.setField(key, File.fromRawPath(Uint8List.fromList(value)));
