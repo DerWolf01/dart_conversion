@@ -178,6 +178,7 @@ class ConversionService {
       object is List<String> ||
       object is List<int> ||
       object is List<bool> ||
+      object is Null ||
       object == String ||
       object == num ||
       object == int ||
@@ -187,5 +188,6 @@ class ConversionService {
       object == (List<int>) ||
       object == (List<double>) ||
       object == (List<num>) ||
+      object == null ||
       object == (List<bool>));
 }
