@@ -29,12 +29,16 @@ class ConversionService {
     for (final entry in declarations(classMirror).entries) {
       final declaration = entry.value;
       final name = entry.key;
-      print(
-          "name: $name declaration: $declaration value: ${mirror.getField(name).reflectee} ${(declaration as VariableMirror).type.reflectedType}");
       if (declaration is VariableMirror && !declaration.isStatic) {
+        print(
+            "name: $name declaration: $declaration value: ${mirror.getField(name).reflectee} ${(declaration as VariableMirror).type.reflectedType}");
+
         var fieldName = MirrorSystem.getName(name);
         var fieldValue = mirror.getField(name).reflectee;
-        if (isPrimitive(fieldValue)) {
+        if (fieldValue == null || isNullable(declaration)) {
+          map[fieldName] = null;
+          continue;
+        } else if (isPrimitive(fieldValue)) {
           if (fieldValue.runtimeType == declaration.type.reflectedType) {
             map[fieldName] = fieldValue;
           } else {
@@ -68,7 +72,10 @@ class ConversionService {
         instance.setField(key, File.fromRawPath(Uint8List.fromList(value)));
         continue;
       }
-      if (isPrimitive(dec.type.reflectedType)) {
+      if (value == null || isNullable(dec)) {
+        instance.setField(key, null);
+        continue;
+      } else if (isPrimitive(dec.type.reflectedType)) {
         if (value.runtimeType == dec.type.reflectedType) {
           instance.setField(key, value);
           continue;
@@ -142,6 +149,9 @@ class ConversionService {
     if (T == dynamic) {
       return jsonDecode(body);
     }
+    if (T == File) {
+      return File.fromRawPath(Uint8List.fromList(jsonDecode(body)));
+    }
     if (T == String) {
       return body;
     } else if (T == int) {
@@ -194,4 +204,10 @@ class ConversionService {
       object == (List<num>) ||
       object == null ||
       object == (List<bool>));
+
+  static isNullable(VariableMirror vMirror) =>
+      (reflect(null).type.isSubtypeOf(vMirror.type)) ||
+      (reflect(null).type.isAssignableTo(vMirror.type)) ||
+      (vMirror.type.reflectedType == Null) ||
+      (vMirror.type.reflectedType == dynamic);
 }
