@@ -31,11 +31,11 @@ class ConversionService {
       final name = entry.key;
       if (declaration is VariableMirror && !declaration.isStatic) {
         print(
-            "name: $name declaration: $declaration value: ${mirror.getField(name).reflectee} ${(declaration as VariableMirror).type.reflectedType}");
+            "name: $name declaration: $declaration value: ${mirror.getField(name).reflectee} ${(declaration).type.reflectedType}");
 
         var fieldName = MirrorSystem.getName(name);
         var fieldValue = mirror.getField(name).reflectee;
-        if (fieldValue == null || isNullable(declaration)) {
+        if (fieldValue == null && isNullable(declaration.type)) {
           map[fieldName] = null;
           continue;
         } else if (isPrimitive(fieldValue)) {
@@ -72,7 +72,7 @@ class ConversionService {
         instance.setField(key, File.fromRawPath(Uint8List.fromList(value)));
         continue;
       }
-      if (value == null || isNullable(dec)) {
+      if (value == null && isNullable(dec.type)) {
         instance.setField(key, null);
         continue;
       } else if (isPrimitive(dec.type.reflectedType)) {
@@ -205,9 +205,9 @@ class ConversionService {
       object == null ||
       object == (List<bool>));
 
-  static isNullable(VariableMirror vMirror) =>
-      (reflect(null).type.isSubtypeOf(vMirror.type)) ||
-      (reflect(null).type.isAssignableTo(vMirror.type)) ||
-      (vMirror.type.reflectedType == Null) ||
-      (vMirror.type.reflectedType == dynamic);
+  static isNullable(TypeMirror type) =>
+      (reflect(null).type.isSubtypeOf(type)) ||
+      (reflect(null).type.isAssignableTo(type)) ||
+      (type.reflectedType == Null) ||
+      (type.reflectedType == dynamic);
 }
