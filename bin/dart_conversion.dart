@@ -1,9 +1,17 @@
+import 'dart:io';
+
 import 'package:dart_conversion/dart_conversion.dart';
 
-void main() {
-  print(ConversionService.mapToObject(
-      ConversionService.objectToMap(SignUpForm.init(User.init("test"))),
-      type: SignUpForm));
+void main() async {
+  final f = await File("./hello.txt").create();
+  await f.writeAsString("Hello World");
+  print(await f.readAsString());
+  print(f);
+  final SignUpForm res = ConversionService.mapToObject(
+      ConversionService.objectToMap(SignUpForm.init(User.init("test", f))),
+      type: SignUpForm);
+  print(res.user.file.readAsStringSync());
+  // print(await res.user.file.readAsString());
 }
 
 class SignUpResult {
@@ -12,12 +20,16 @@ class SignUpResult {
 
 class User {
   User();
-  User.init(this.name);
+
+  User.init(this.name, this.file);
+
+  late final File file;
   late final String name;
 }
 
 class SignUpForm {
   SignUpForm();
+
   SignUpForm.init(this.user);
 
   late final User user;

@@ -69,14 +69,18 @@ class ConversionService {
       print("key: $key dec: $dec value: $value");
       if (classMirror.reflectedType is File ||
           classMirror.reflectedType == File && value is List<int>) {
-        instance.setField(key, File.fromRawPath(Uint8List.fromList(value)));
+        final f = File("random.file");
+        f.writeAsBytesSync(Uint8List.fromList(value));
+        instance.setField(key, f);
         continue;
       }
       if (value == null && isNullable(dec.type)) {
         instance.setField(key, null);
         continue;
       } else if (dec.type.reflectedType == File && value is List<int>) {
-        instance.setField(key, File.fromRawPath(Uint8List.fromList(value)));
+        final f = File("./random.file");
+        f.writeAsBytesSync(value);
+        instance.setField(key, f);
         continue;
       } else if (isPrimitive(dec.type.reflectedType)) {
         if (value.runtimeType == dec.type.reflectedType) {
