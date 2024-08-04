@@ -80,7 +80,8 @@ class ConversionService {
         continue;
       } else if (dec.type.reflectedType == File && value is List) {
         final f = File("./random.file");
-        f.writeAsBytesSync(List<int>.of([...value]));
+        final ints = value.whereType<int>();
+        f.writeAsBytesSync(ints.toList());
         instance.setField(key, f);
 
         continue;
