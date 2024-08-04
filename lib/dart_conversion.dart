@@ -78,10 +78,11 @@ class ConversionService {
       if (value == null && isNullable(dec.type)) {
         instance.setField(key, null);
         continue;
-      } else if (dec.type.reflectedType == File && isIntList(value)) {
+      } else if (dec.type.reflectedType == File && value is List) {
         final f = File("./random.file");
-        f.writeAsBytesSync(value);
+        f.writeAsBytesSync(value as List<int>);
         instance.setField(key, f);
+
         continue;
       } else if (isPrimitive(dec.type.reflectedType)) {
         if (value.runtimeType == dec.type.reflectedType) {
@@ -189,8 +190,6 @@ class ConversionService {
   }
 
   static bool isImage(dynamic object) => object is File;
-
-
 
   static bool isPrimitive(dynamic object) => (object is String ||
       object is num ||
