@@ -76,7 +76,7 @@ class ConversionService {
         instance.setField(key, null);
         continue;
       } else if (dec.type.reflectedType == File && value is List<int>) {
-        instance.setField(key, File.fromRawPath(value));
+        instance.setField(key, File.fromRawPath(Uint8List.fromList(value)));
         continue;
       } else if (isPrimitive(dec.type.reflectedType)) {
         if (value.runtimeType == dec.type.reflectedType) {
