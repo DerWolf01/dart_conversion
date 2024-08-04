@@ -69,7 +69,7 @@ class ConversionService {
       print(
           "key: $key dec: $dec type: ${dec.type.reflectedType} valueType: ${value.runtimeType}");
       if (classMirror.reflectedType is File ||
-          classMirror.reflectedType == File && isIntList(value)) {
+          classMirror.reflectedType == File && value is List) {
         final f = File("random.file");
         f.writeAsBytesSync(Uint8List.fromList(value));
         instance.setField(key, f);
