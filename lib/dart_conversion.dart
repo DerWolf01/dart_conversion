@@ -66,9 +66,10 @@ class ConversionService {
       final dec = decEntry.value as VariableMirror;
 
       final value = map[MirrorSystem.getName(key)];
-      print("key: $key dec: $dec type: ${dec.type.reflectedType} valueType: ${value.runtimeType}");
+      print(
+          "key: $key dec: $dec type: ${dec.type.reflectedType} valueType: ${value.runtimeType}");
       if (classMirror.reflectedType is File ||
-          classMirror.reflectedType == File && value is List<int>) {
+          classMirror.reflectedType == File && isIntList(value)) {
         final f = File("random.file");
         f.writeAsBytesSync(Uint8List.fromList(value));
         instance.setField(key, f);
@@ -77,7 +78,7 @@ class ConversionService {
       if (value == null && isNullable(dec.type)) {
         instance.setField(key, null);
         continue;
-      } else if (dec.type.reflectedType == File && value is List<int>) {
+      } else if (dec.type.reflectedType == File && isIntList(value)) {
         final f = File("./random.file");
         f.writeAsBytesSync(value);
         instance.setField(key, f);
@@ -189,7 +190,7 @@ class ConversionService {
 
   static bool isImage(dynamic object) => object is File;
 
-  static bool isByteList(dynamic object) => object is List<int>;
+
 
   static bool isPrimitive(dynamic object) => (object is String ||
       object is num ||
@@ -217,4 +218,8 @@ class ConversionService {
       (reflect(null).type.isAssignableTo(type)) ||
       (type.reflectedType == Null) ||
       (type.reflectedType == dynamic);
+
+  static isIntList(List object) => object.every(
+        (element) => element is int || element == int,
+      );
 }
