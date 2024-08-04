@@ -46,7 +46,7 @@ class ConversionService {
                 convertUsingType(fieldValue, declaration.type.reflectedType);
           }
         } else if (fieldValue is File) {
-          map[fieldName] = fieldValue.readAsBytesSync();
+          map[fieldName] = base64.encode(fieldValue.readAsBytesSync());
         } else if (fieldValue is List) {
           map[fieldName] = fieldValue.map((e) => objectToMap(e)).toList();
         } else {
@@ -78,13 +78,17 @@ class ConversionService {
       if (value == null && isNullable(dec.type)) {
         instance.setField(key, null);
         continue;
-      } else if (dec.type.reflectedType == File && value is List) {
-        final f = File("./random.file");
-        final ints = value.whereType<int>();
-        f.writeAsBytesSync(ints.toList());
-        instance.setField(key, f);
+      } else if (dec.type.reflectedType == File) {
+        try {
+          final f = File("./random.file");
 
-        continue;
+          f.writeAsBytesSync(base64.decode(value));
+          instance.setField(key, f);
+
+          continue;
+        } catch (e) {
+          print(e);
+        }
       } else if (isPrimitive(dec.type.reflectedType)) {
         if (value.runtimeType == dec.type.reflectedType) {
           instance.setField(key, value);
