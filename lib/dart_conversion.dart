@@ -66,7 +66,7 @@ class ConversionService {
       final dec = decEntry.value as VariableMirror;
 
       final value = map[MirrorSystem.getName(key)];
-      print("key: $key dec: $dec value: $value");
+      // print("key: $key dec: $dec value: $value");
       if (classMirror.reflectedType is File ||
           classMirror.reflectedType == File && value is List<int>) {
         final f = File("random.file");
