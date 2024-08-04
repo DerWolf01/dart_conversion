@@ -75,7 +75,7 @@ class ConversionService {
       if (value == null && isNullable(dec.type)) {
         instance.setField(key, null);
         continue;
-      } else if (dec.type.reflectedType == File && value == List<int>) {
+      } else if (dec.type.reflectedType == File && value is List<int>) {
         instance.setField(key, File.fromRawPath(value));
         continue;
       } else if (isPrimitive(dec.type.reflectedType)) {
