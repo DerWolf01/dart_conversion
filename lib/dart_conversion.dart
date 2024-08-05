@@ -128,14 +128,13 @@ class ConversionService {
     final t = type ?? T;
 
     print("type: ${t}  valueType: ${value.runtimeType}");
-    if (t is File || t == File) {
+    if (value == null && isNullable(reflectType(t))) {
+      return null;
+    } else if (t is File || t == File) {
       final f = File("random.file");
       f.writeAsBytesSync(Uint8List.fromList(value));
 
       return f;
-    }
-    if (value == null && isNullable(reflectType(t))) {
-      return null;
     } else if (isPrimitive(t)) {
       if (value.runtimeType == t) {
         return value;
