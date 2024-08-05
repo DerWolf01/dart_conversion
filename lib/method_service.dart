@@ -51,8 +51,13 @@ class MethodService {
           (key, value) => MapEntry(Symbol(key), value),
         ));
     if (res is Future) {
-      return await (res as Future<InstanceMirror>);
+      print('is future');
+      final futureRes = await (res as Future<InstanceMirror>);
+      print(futureRes);
+      return futureRes;
     }
+    print('is not future');
+    print(res);
     return res;
   }
 
