@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:mirrors';
 import 'dart:typed_data';
@@ -33,7 +34,7 @@ class MethodService {
         ));
   }
 
-  Future<InstanceMirror> invokeAsync(
+  FutureOr<InstanceMirror> invokeAsync(
       {required InstanceMirror holderMirror,
       required MethodMirror methodMirror,
       required Map<String, dynamic> argumentsMap,
@@ -43,12 +44,12 @@ class MethodService {
         argumentsMap: argumentsMap,
         onParameterAnotation: onParameterAnotation);
 
-    return await (holderMirror.invoke(
+    return (await (holderMirror.invoke(
         Symbol(methodMirror.name),
         methodParameters.args,
         methodParameters.namedArgs.map(
           (key, value) => MapEntry(Symbol(key), value),
-        )) as Future<InstanceMirror>);
+        )) as FutureOr<InstanceMirror>));
   }
 
   MethodParameters methodArgumentsByMap(
