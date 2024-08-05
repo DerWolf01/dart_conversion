@@ -34,7 +34,7 @@ class MethodService {
         ));
   }
 
-  Future<InstanceMirror> invokeAsync(
+  Future<dynamic> invokeAsync(
       {required InstanceMirror holderMirror,
       required MethodMirror methodMirror,
       required Map<String, dynamic> argumentsMap,
@@ -52,7 +52,7 @@ class MethodService {
         ));
     if (res.reflectee is Future) {
       print('is future');
-      final futureRes = await (res.reflectee as Future<InstanceMirror>);
+      final futureRes = await (res.reflectee as Future<dynamic>);
       print(futureRes);
       return futureRes;
     }
