@@ -44,12 +44,13 @@ class MethodService {
         argumentsMap: argumentsMap,
         onParameterAnotation: onParameterAnotation);
 
-    return (await (holderMirror.invoke(
+    final res = await (holderMirror.invoke(
         Symbol(methodMirror.name),
         methodParameters.args,
         methodParameters.namedArgs.map(
           (key, value) => MapEntry(Symbol(key), value),
-        )) as FutureOr<InstanceMirror>));
+        )) as FutureOr<InstanceMirror>);
+    return res;
   }
 
   MethodParameters methodArgumentsByMap(
