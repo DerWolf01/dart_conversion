@@ -6,7 +6,7 @@ import 'package:dart_conversion/dart_conversion.dart';
 
 typedef OnParameterAnotations = List<OnParameterAnotation>;
 
-get methodService => MethodService();
+MethodService get methodService => MethodService();
 
 class MethodService {
   MethodService._();
@@ -15,7 +15,7 @@ class MethodService {
 
   factory MethodService() => (_instance ??= MethodService._());
 
-  dynamic invoke(
+  InstanceMirror invoke(
       {required InstanceMirror holderMirror,
       required MethodMirror methodMirror,
       required Map<String, dynamic> argumentsMap,
@@ -33,7 +33,7 @@ class MethodService {
         ));
   }
 
-  Future<dynamic> invokeAsync(
+  Future<InstanceMirror> invokeAsync(
       {required InstanceMirror holderMirror,
       required MethodMirror methodMirror,
       required Map<String, dynamic> argumentsMap,
@@ -48,10 +48,10 @@ class MethodService {
         methodParameters.args,
         methodParameters.namedArgs.map(
           (key, value) => MapEntry(Symbol(key), value),
-        )) as Future<dynamic>);
+        )) as Future<InstanceMirror>);
   }
 
-  static MethodParameters methodArgumentsByMap(
+  MethodParameters methodArgumentsByMap(
       {required MethodMirror methodMirror,
       required Map<String, dynamic> argumentsMap,
       OnParameterAnotations? onParameterAnotation}) {
