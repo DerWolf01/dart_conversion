@@ -26,7 +26,7 @@ class MethodService {
         onParameterAnotation: onParameterAnotation);
 
     return holderMirror.invoke(
-        Symbol(""),
+        Symbol(methodMirror.name),
         methodParameters.args,
         methodParameters.namedArgs.map(
           (key, value) => MapEntry(Symbol(key), value),
@@ -44,7 +44,7 @@ class MethodService {
         onParameterAnotation: onParameterAnotation);
 
     return await (holderMirror.invoke(
-        Symbol(""),
+        Symbol(methodMirror.name),
         methodParameters.args,
         methodParameters.namedArgs.map(
           (key, value) => MapEntry(Symbol(key), value),
@@ -110,4 +110,8 @@ class OnParameterAnotation<AnotationType> {
     return parameterMirror.metadata
         .any((element) => element.type.reflectedType == anotationType);
   }
+}
+
+extension MirrorName on DeclarationMirror {
+  String get name => MirrorSystem.getName(simpleName);
 }
