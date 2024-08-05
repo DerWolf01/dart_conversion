@@ -108,20 +108,15 @@ class ConversionService {
   }
 
   static Future<T> requestToObject<T>(HttpRequest request, {Type? type}) async {
-    return request.method == "GET"
-        ? mapToObject<T>(await uriParamsStreamToMap(request), type: type)
-        : mapToObject<T>(jsonDecode(await utf8.decodeStream(request)),
-            type: type);
+    return mapToObject<T>(await requestToRequestDataMap(request), type: type);
   }
 
-  static uriParamsStreamToMap(Stream<List<int>> stream) async {
-    final body = await utf8.decodeStream(stream);
-    print(body.split("&").map(
-          (e) => MapEntry<String, dynamic>(e.split("=")[0], e.split("=")[1]),
-        ));
-    return Map<String, dynamic>.fromEntries(body.split("&").map(
-          (e) => MapEntry<String, dynamic>(e.split("=")[0], e.split("=")[1]),
-        ));
+  static Future<Map<String, dynamic>> requestToRequestDataMap(
+      HttpRequest request,
+      {Type? type}) async {
+    return request.method == "GET"
+        ? request.uri.queryParameters
+        : jsonDecode(await utf8.decodeStream(request));
   }
 
   static dynamic convert<T>({Type? type, dynamic value}) {
