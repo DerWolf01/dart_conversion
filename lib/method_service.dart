@@ -52,7 +52,7 @@ class MethodService {
         ));
     if (res.reflectee is Future) {
       print('is future');
-      final futureRes = await (res.reflectee() as Future<InstanceMirror>);
+      final futureRes = await (res.reflectee as Future<InstanceMirror>);
       print(futureRes);
       return futureRes;
     }
