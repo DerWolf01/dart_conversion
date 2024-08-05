@@ -68,7 +68,8 @@ class MethodService {
             .firstOrNull;
         if (param.isNamed) {
           if (anotation != null) {
-            namedArgs[name] = anotation.generateValue(name, argumentsMap[name]);
+            namedArgs[name] =
+                anotation.generateValue(name, argumentsMap[name], anotation);
           } else {
             namedArgs[name] = ConversionService.convert(
                 type: type, value: argumentsMap[name]);
@@ -77,7 +78,8 @@ class MethodService {
         }
 
         if (anotation != null) {
-          args.add(anotation.generateValue(name, argumentsMap[name]));
+          args.add(
+              anotation.generateValue(name, argumentsMap[name], anotation));
         } else {
           args.add(
               ConversionService.convert(type: type, value: argumentsMap[name]));
@@ -97,11 +99,12 @@ class MethodParameters {
   MethodParameters(this.args, this.namedArgs);
 }
 
-class OnParameterAnotation {
-  const OnParameterAnotation(this.anotationType, this.generateValue);
+class OnParameterAnotation<AnotationType> {
+  const OnParameterAnotation(this.generateValue);
 
-  final Type anotationType;
-  final dynamic Function(String key, dynamic value) generateValue;
+  Type get anotationType => AnotationType;
+  final dynamic Function(String key, dynamic value, AnotationType anotation)
+      generateValue;
 
   bool checkAnotation(ParameterMirror parameterMirror) {
     return parameterMirror.metadata
