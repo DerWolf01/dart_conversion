@@ -50,9 +50,9 @@ class MethodService {
         methodParameters.namedArgs.map(
           (key, value) => MapEntry(Symbol(key), value),
         ));
-    if (res is Future) {
+    if (res.reflectee is Future) {
       print('is future');
-      final futureRes = await (res as Future<InstanceMirror>);
+      final futureRes = await (res.reflectee() as Future<InstanceMirror>);
       print(futureRes);
       return futureRes;
     }
