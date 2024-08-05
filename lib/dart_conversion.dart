@@ -1,76 +1,14 @@
 library dart_conversion;
 
 export "./dart_conversion.dart";
+export "./method_service.dart";
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:mirrors';
 import 'dart:typed_data';
 
-class MethodParameters {
-  final List<dynamic> args;
-  final Map<String, dynamic> namedArgs;
-
-  MethodParameters(this.args, this.namedArgs);
-}
-
 class ConversionService {
-  static MethodParameters methodArgumentsByMap(
-      {required MethodMirror method, required Map<String, dynamic> map}) {
-    List<dynamic> args = [];
-    Map<String, dynamic> namedArgs = {};
-    for (final param in method.parameters) {
-      final type = param.type.reflectedType;
-      final name = MirrorSystem.getName(param.simpleName);
-      if (param.isNamed) {
-        if (map.containsKey(name)) {
-          if (type == File) {
-            final f = File("random.file");
-            f.writeAsBytesSync(Uint8List.fromList(map[name]));
-            namedArgs[name] = f;
-          } else if (type == int) {
-            namedArgs[name] = int.parse(map[name]);
-          } else if (type == double) {
-            namedArgs[name] = double.parse(map[name]);
-          } else if (type == bool) {
-            namedArgs[name] = map[name] == "true";
-          } else if (type == String) {
-            namedArgs[name] = map[name].toString();
-          } else if (type == List) {
-            namedArgs[name] = map[name].map((e) => e).toList();
-          } else {
-            namedArgs[name] = mapToObject(map[name], type: type);
-          }
-        } else {
-          namedArgs[name] = null;
-        }
-      }
-
-      if (map.containsKey(name)) {
-        if (type == File) {
-          final f = File("random.file");
-          f.writeAsBytesSync(Uint8List.fromList(map[name]));
-          args.add(f);
-        } else if (type == int) {
-          args.add(int.parse(map[name]));
-        } else if (type == double) {
-          args.add(double.parse(map[name]));
-        } else if (type == bool) {
-          args.add(map[name] == "true");
-        } else if (type == String) {
-          args.add(map[name]);
-        } else if (type == List) {
-          args.add(map[name].map((e) => e).toList());
-        } else {
-          args.add(mapToObject(map[name], type: type));
-        }
-      } else {
-        args.add(null);
-      }
-    }
-    return MethodParameters(args, namedArgs);
-  }
-
   static Map<Symbol, DeclarationMirror> declarations(ClassMirror classMirror) {
     Map<Symbol, DeclarationMirror> decs = {...classMirror.declarations};
     ClassMirror? superClass = classMirror.superclass;
@@ -98,23 +36,8 @@ class ConversionService {
 
         var fieldName = MirrorSystem.getName(name);
         var fieldValue = mirror.getField(name).reflectee;
-        if (fieldValue == null && isNullable(declaration.type)) {
-          map[fieldName] = null;
-          continue;
-        } else if (isPrimitive(fieldValue)) {
-          if (fieldValue.runtimeType == declaration.type.reflectedType) {
-            map[fieldName] = fieldValue;
-          } else {
-            map[fieldName] =
-                convertUsingType(fieldValue, declaration.type.reflectedType);
-          }
-        } else if (fieldValue is File) {
-          map[fieldName] = base64.encode(fieldValue.readAsBytesSync());
-        } else if (fieldValue is List) {
-          map[fieldName] = fieldValue.map((e) => objectToMap(e)).toList();
-        } else {
-          map[fieldName] = objectToMap(fieldValue);
-        }
+        map[fieldName] =
+            convert(value: fieldValue, type: declaration.type.reflectedType);
       }
     }
     return map;
@@ -157,7 +80,7 @@ class ConversionService {
           instance.setField(key, value);
           continue;
         }
-        instance.setField(key, convertUsingType(value, dec.type.reflectedType));
+        instance.setField(key, convertPrimitive(value, dec.type.reflectedType));
       } else if (value is List) {
         instance.setField(
             key,
@@ -201,11 +124,41 @@ class ConversionService {
         ));
   }
 
+  static dynamic convert<T>({Type? type, dynamic value}) {
+    final t = type ?? T;
+
+    print("type: ${t}  valueType: ${value.runtimeType}");
+    if (t is File || t == File) {
+      final f = File("random.file");
+      f.writeAsBytesSync(Uint8List.fromList(value));
+
+      return f;
+    }
+    if (value == null && isNullable(reflectType(t))) {
+      return null;
+    } else if (isPrimitive(t)) {
+      if (value.runtimeType == t) {
+        return value;
+      }
+      return convertPrimitive(value, t);
+    } else if (value is List) {
+      return value.map((e) => mapToObject(e, type: t)).toList();
+    } else if (value is Map<String, dynamic>) {
+      return mapToObject(value, type: t);
+    } else {
+      if (value.runtimeType == t) {
+        return value;
+      }
+
+      return mapToObject(value, type: t);
+    }
+  }
+
   /// Converts a JSON string to an object of type T.
   ///
   /// \param body The JSON string to convert.
   /// \return An instance of type T.
-  static T? convert<T>(dynamic body) {
+  static T? jsonToObject<T>(dynamic body) {
     if (T == dynamic) {
       return jsonDecode(body) as T;
     }
@@ -222,7 +175,7 @@ class ConversionService {
     return mapToObject<T>(jsonDecode(body));
   }
 
-  static dynamic convertUsingType(dynamic body, Type T) {
+  static dynamic convertPrimitive(dynamic body, Type T) {
     if (T == dynamic) {
       return jsonDecode(body);
     }
