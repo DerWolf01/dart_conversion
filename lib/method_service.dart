@@ -34,7 +34,7 @@ class MethodService {
         ));
   }
 
-  FutureOr<InstanceMirror> invokeAsync(
+  Future<InstanceMirror> invokeAsync(
       {required InstanceMirror holderMirror,
       required MethodMirror methodMirror,
       required Map<String, dynamic> argumentsMap,
@@ -50,6 +50,7 @@ class MethodService {
         methodParameters.namedArgs.map(
           (key, value) => MapEntry(Symbol(key), value),
         )) as FutureOr<InstanceMirror>);
+    print('res: $res');
     return res;
   }
 
