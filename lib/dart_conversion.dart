@@ -7,7 +7,70 @@ import 'dart:io';
 import 'dart:mirrors';
 import 'dart:typed_data';
 
+class MethodParameters {
+  final List<dynamic> args;
+  final Map<String, dynamic> namedArgs;
+
+  MethodParameters(this.args, this.namedArgs);
+}
+
 class ConversionService {
+  static MethodParameters methodArgumentsByMap(
+      {required MethodMirror method, required Map<String, dynamic> map}) {
+    List<dynamic> args = [];
+    Map<String, dynamic> namedArgs = {};
+    for (final param in method.parameters) {
+      final type = param.type.reflectedType;
+      final name = MirrorSystem.getName(param.simpleName);
+      if (param.isNamed) {
+        if (map.containsKey(name)) {
+          if (type == File) {
+            final f = File("random.file");
+            f.writeAsBytesSync(Uint8List.fromList(map[name]));
+            namedArgs[name] = f;
+          } else if (type == int) {
+            namedArgs[name] = int.parse(map[name]);
+          } else if (type == double) {
+            namedArgs[name] = double.parse(map[name]);
+          } else if (type == bool) {
+            namedArgs[name] = map[name] == "true";
+          } else if (type == String) {
+            namedArgs[name] = map[name].toString();
+          } else if (type == List) {
+            namedArgs[name] = map[name].map((e) => e).toList();
+          } else {
+            namedArgs[name] = mapToObject(map[name], type: type);
+          }
+        } else {
+          namedArgs[name] = null;
+        }
+      }
+
+      if (map.containsKey(name)) {
+        if (type == File) {
+          final f = File("random.file");
+          f.writeAsBytesSync(Uint8List.fromList(map[name]));
+          args.add(f);
+        } else if (type == int) {
+          args.add(int.parse(map[name]));
+        } else if (type == double) {
+          args.add(double.parse(map[name]));
+        } else if (type == bool) {
+          args.add(map[name] == "true");
+        } else if (type == String) {
+          args.add(map[name]);
+        } else if (type == List) {
+          args.add(map[name].map((e) => e).toList());
+        } else {
+          args.add(mapToObject(map[name], type: type));
+        }
+      } else {
+        args.add(null);
+      }
+    }
+    return MethodParameters(args, namedArgs);
+  }
+
   static Map<Symbol, DeclarationMirror> declarations(ClassMirror classMirror) {
     Map<Symbol, DeclarationMirror> decs = {...classMirror.declarations};
     ClassMirror? superClass = classMirror.superclass;
