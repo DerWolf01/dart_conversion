@@ -144,7 +144,7 @@ class ConversionService {
         return value;
       }
 
-      return mapToObject(value, type: t);
+      return objectToMap(value);
     }
   }
 

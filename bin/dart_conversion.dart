@@ -10,7 +10,7 @@ void main() async {
   final SignUpForm res = ConversionService.mapToObject(
       ConversionService.objectToMap(SignUpForm.init(User.init("test", f))),
       type: SignUpForm);
-  print(res.user.file.readAsStringSync());
+  print(ConversionService.encodeJSON(res));
   // print(await res.user.file.readAsString());
 }
 
