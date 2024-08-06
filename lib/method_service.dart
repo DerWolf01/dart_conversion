@@ -85,10 +85,11 @@ class MethodService {
                     (element) =>
                         element.type.reflectedType == anotation.anotationType,
                   )
-                  .first);
+                  .first
+                  .reflectee);
           continue;
         }
-        print('anotation $anotation $name $argumentsMap[name]');
+        print('anotation $anotation $name ${argumentsMap[name]}');
         args.add(anotation.generateValue(
             name,
             argumentsMap[name],
@@ -97,7 +98,8 @@ class MethodService {
                   (element) =>
                       element.type.reflectedType == anotation.anotationType,
                 )
-                .first));
+                .first
+                .reflectee));
         continue;
       }
       if (argumentsMap.containsKey(name)) {
