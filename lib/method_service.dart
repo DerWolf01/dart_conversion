@@ -74,7 +74,7 @@ class MethodService {
       final name = MirrorSystem.getName(param.simpleName);
       final anotation = onParameterAnotation
           ?.where(
-            (element) => element.checkAnotation(param),
+            (element) => element.checkAnotation(param) != null,
           )
           .firstOrNull;
       print("anotation $anotation");
