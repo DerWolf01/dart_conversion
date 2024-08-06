@@ -72,33 +72,39 @@ class MethodService {
     for (final param in methodMirror.parameters) {
       final type = param.type.reflectedType;
       final name = MirrorSystem.getName(param.simpleName);
-      if (argumentsMap.containsKey(name)) {
-        final anotation = onParameterAnotation
-            ?.where(
-              (element) => element.checkAnotation(param),
-            )
-            .firstOrNull;
+      final anotation = onParameterAnotation
+          ?.where(
+            (element) => element.checkAnotation(param),
+          )
+          .firstOrNull;
+      if (anotation != null) {
         if (param.isNamed) {
-          if (anotation != null) {
-            print('anotation $anotation $name $argumentsMap[name]');
-            namedArgs[name] =
-                anotation.generateValue(name, argumentsMap[name], anotation);
-          } else {
-            namedArgs[name] = ConversionService.convert(
-                type: type, value: argumentsMap[name]);
-          }
+          print('anotation $anotation $name $argumentsMap[name]');
+          namedArgs[name] =
+              anotation.generateValue(name, argumentsMap[name], anotation);
           continue;
         }
 
-        if (anotation != null) {
-          args.add(
-              anotation.generateValue(name, argumentsMap[name], anotation));
-        } else {
-          args.add(
-              ConversionService.convert(type: type, value: argumentsMap[name]));
+        args.add(anotation.generateValue(name, argumentsMap[name], anotation));
+        continue;
+      }
+      if (argumentsMap.containsKey(name)) {
+        if (param.isNamed) {
+          namedArgs[name] =
+              ConversionService.convert(type: type, value: argumentsMap[name]);
+
+          continue;
         }
+
+        args.add(
+            ConversionService.convert(type: type, value: argumentsMap[name]));
       } else {
-        args.add(null);
+        if (ConversionService.isNullable(param.type)) {
+          args.add(null);
+          continue;
+        } else {
+          throw ArgumentError('Missing argument $name');
+        }
       }
     }
     return MethodParameters(args, namedArgs);
