@@ -52,6 +52,8 @@ class MethodService {
         ));
     if (res.reflectee is Future) {
       print('is future');
+      print(res);
+      print(res.reflectee);
       final futureRes = await (res.reflectee as Future<dynamic>);
       print(futureRes);
       return futureRes;
