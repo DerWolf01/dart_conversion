@@ -80,12 +80,25 @@ class MethodService {
       if (anotation != null) {
         if (param.isNamed) {
           print('anotation $anotation $name $argumentsMap[name]');
-          namedArgs[name] =
-              anotation.generateValue(name, argumentsMap[name], anotation);
+          namedArgs[name] = anotation.generateValue(
+              name,
+              argumentsMap[name],
+              param.metadata.firstWhere((element) =>
+                  element.type
+                      .isAssignableTo(reflectType(anotation.anotationType)) ||
+                  element.type
+                      .isSubtypeOf(reflectType(anotation.anotationType))));
           continue;
         }
 
-        args.add(anotation.generateValue(name, argumentsMap[name], anotation));
+        args.add(anotation.generateValue(
+            name,
+            argumentsMap[name],
+            param.metadata.firstWhere((element) =>
+                element.type
+                    .isAssignableTo(reflectType(anotation.anotationType)) ||
+                element.type
+                    .isSubtypeOf(reflectType(anotation.anotationType)))));
         continue;
       }
       if (argumentsMap.containsKey(name)) {
