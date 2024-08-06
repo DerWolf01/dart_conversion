@@ -122,7 +122,7 @@ class ConversionService {
   static dynamic convert<T>({Type? type, dynamic value}) {
     final t = type ?? T;
 
-    print("type: ${t}  valueType: ${value.runtimeType}");
+    print("type: $t  valueType: ${value.runtimeType}");
     if (value == null && isNullable(reflectType(t))) {
       return null;
     } else if (t is File || t == File) {
@@ -202,6 +202,15 @@ class ConversionService {
     } catch (e) {
       throw Exception(e);
     }
+  }
+
+  static String jsonEncode(dynamic object) {
+    if (isPrimitive(object)) {
+      return jsonEncode(object);
+    }
+    final map = objectToMap(object);
+    print("map: $map");
+    return jsonEncode(map);
   }
 
   static bool isImage(dynamic object) => object is File;
