@@ -118,10 +118,10 @@ class OnParameterAnotation<AnotationType> {
   Type get anotationType => AnotationType;
   final dynamic Function(String key, dynamic value, AnotationType anotation)
       generateValue;
-
   bool checkAnotation(ParameterMirror parameterMirror) {
-    return parameterMirror.metadata
-        .any((element) => element.type.reflectedType == anotationType);
+    return parameterMirror.metadata.any((element) =>
+        element.type.isAssignableTo(reflectType(anotationType)) ||
+        element.type.isSubtypeOf(reflectType(anotationType)));
   }
 }
 
