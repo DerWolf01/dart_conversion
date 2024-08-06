@@ -210,7 +210,15 @@ class ConversionService {
     }
     final map = objectToMap(object);
     print("map: $map");
-    return jsonEncode(map);
+    late final String json;
+
+    try {
+      json = jsonEncode(map);
+    } catch (e, s) {
+      print(e);
+      print(s);
+    }
+    return json;
   }
 
   static bool isImage(dynamic object) => object is File;
