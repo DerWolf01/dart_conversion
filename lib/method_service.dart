@@ -75,31 +75,24 @@ class MethodService {
           .firstOrNull;
       print("anotation $anotation");
       if (anotation != null) {
+        final anotationInstance = param.metadata
+            .where(
+              (element) =>
+                  element.type.reflectedType == anotation.anotationType,
+            )
+            .first
+            .reflectee;
+
+        print("anotationInstance $anotationInstance");
         if (param.isNamed) {
           print('anotation $anotation $name $argumentsMap[name]');
           namedArgs[name] = anotation.generateValue(
-              name,
-              argumentsMap[name],
-              param.metadata
-                  .where(
-                    (element) =>
-                        element.type.reflectedType == anotation.anotationType,
-                  )
-                  .first
-                  .reflectee);
+              name, argumentsMap[name], anotationInstance);
           continue;
         }
         print('anotation $anotation $name ${argumentsMap[name]}');
         args.add(anotation.generateValue(
-            name,
-            argumentsMap[name],
-            param.metadata
-                .where(
-                  (element) =>
-                      element.type.reflectedType == anotation.anotationType,
-                )
-                .first
-                .reflectee));
+            name, argumentsMap[name], anotationInstance));
         continue;
       }
       if (argumentsMap.containsKey(name)) {
