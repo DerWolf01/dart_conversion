@@ -55,7 +55,7 @@ class ConversionService {
         print("isList: $value to map ");
         map[fieldName] = value.map((e) => mapToObject(e, type: t)).toList();
       } else {
-        return objectToMap(value);
+        map[fieldName] = objectToMap(value);
       }
     }
     return map;
