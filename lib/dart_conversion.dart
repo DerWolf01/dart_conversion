@@ -204,7 +204,7 @@ class ConversionService {
     }
   }
 
-  static String jsonEncode(dynamic object) {
+  static String encodeJSON(dynamic object) {
     if (isPrimitive(object)) {
       return jsonEncode(object);
     }
