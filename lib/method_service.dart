@@ -135,7 +135,7 @@ class OnParameterAnotation<AnotationType> {
   const OnParameterAnotation(this.generateValue);
 
   Type get anotationType => AnotationType;
-  final dynamic Function(String key, dynamic value, AnotationType anotation)
+  final T Function<T>(String key, dynamic value, AnotationType anotation)
       generateValue;
   bool checkAnotation(ParameterMirror parameterMirror) {
     return parameterMirror.metadata.any((element) =>
