@@ -80,6 +80,7 @@ class MethodService {
             .firstOrNull;
         if (param.isNamed) {
           if (anotation != null) {
+            print('anotation $anotation $name $argumentsMap[name]');
             namedArgs[name] =
                 anotation.generateValue(name, argumentsMap[name], anotation);
           } else {
