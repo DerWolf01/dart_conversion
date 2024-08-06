@@ -43,23 +43,19 @@ class MethodService {
         methodMirror: methodMirror,
         argumentsMap: argumentsMap,
         onParameterAnotation: onParameterAnotation);
+    late final InstanceMirror res;
+    try {
+      res = holderMirror.invoke(
+          Symbol(methodMirror.name),
+          methodParameters.args,
+          methodParameters.namedArgs.map(
+            (key, value) => MapEntry(Symbol(key), value),
+          ));
+    } catch (e, s) {
+      print('Error: $e');
+      print('Stack: $s');
+    }
 
-    final res = holderMirror.invoke(
-        Symbol(methodMirror.name),
-        methodParameters.args,
-        methodParameters.namedArgs.map(
-          (key, value) => MapEntry(Symbol(key), value),
-        ));
-    // if (res.reflectee is Future) {
-    //   print('is future');
-    //   print(res);
-    //   print(res.reflectee); await (res.reflectee as FutureOr<dynamic>);
-    //   print(futureRes);
-    //   return futureRes;
-    // }
-    // print('is not future');
-    // print(res);
-    // return res;
     return await (res.reflectee as FutureOr<dynamic>);
   }
 
