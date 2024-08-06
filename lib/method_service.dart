@@ -77,28 +77,16 @@ class MethodService {
             (element) => element.checkAnotation(param),
           )
           .firstOrNull;
+      print("anotation $anotation");
       if (anotation != null) {
         if (param.isNamed) {
           print('anotation $anotation $name $argumentsMap[name]');
-          namedArgs[name] = anotation.generateValue(
-              name,
-              argumentsMap[name],
-              param.metadata.firstWhere((element) =>
-                  element.type
-                      .isAssignableTo(reflectType(anotation.anotationType)) ||
-                  element.type
-                      .isSubtypeOf(reflectType(anotation.anotationType))));
+          namedArgs[name] =
+              anotation.generateValue(name, argumentsMap[name], anotation);
           continue;
         }
 
-        args.add(anotation.generateValue(
-            name,
-            argumentsMap[name],
-            param.metadata.firstWhere((element) =>
-                element.type
-                    .isAssignableTo(reflectType(anotation.anotationType)) ||
-                element.type
-                    .isSubtypeOf(reflectType(anotation.anotationType)))));
+        args.add(anotation.generateValue(name, argumentsMap[name], anotation));
         continue;
       }
       if (argumentsMap.containsKey(name)) {
@@ -137,10 +125,13 @@ class OnParameterAnotation<AnotationType> {
   Type get anotationType => AnotationType;
   final T Function<T>(String key, dynamic value, AnotationType anotation)
       generateValue;
-  bool checkAnotation(ParameterMirror parameterMirror) {
-    return parameterMirror.metadata.any((element) =>
-        element.type.isAssignableTo(reflectType(anotationType)) ||
-        element.type.isSubtypeOf(reflectType(anotationType)));
+  AnotationType checkAnotation(ParameterMirror parameterMirror) {
+    return parameterMirror.metadata
+        .where((element) =>
+            element.type.isAssignableTo(reflectType(anotationType)) ||
+            element.type.isSubtypeOf(reflectType(anotationType)))
+        .firstOrNull
+        ?.reflectee;
   }
 }
 
