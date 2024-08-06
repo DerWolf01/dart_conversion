@@ -131,7 +131,7 @@ class OnParameterAnotation<AnotationType> {
   Type get anotationType => AnotationType;
   final dynamic Function(String key, dynamic value, dynamic anotation)
       generateValue;
-  AnotationType checkAnotation(ParameterMirror parameterMirror) {
+  AnotationType? checkAnotation(ParameterMirror parameterMirror) {
     return parameterMirror.metadata
         .where((element) =>
             element.type.isAssignableTo(reflectType(anotationType)) ||
