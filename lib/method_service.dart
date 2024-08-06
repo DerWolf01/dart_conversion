@@ -50,17 +50,17 @@ class MethodService {
         methodParameters.namedArgs.map(
           (key, value) => MapEntry(Symbol(key), value),
         ));
-    if (res.reflectee is Future) {
-      print('is future');
-      print(res);
-      print(res.reflectee);
-      final futureRes = await (res.reflectee as Future<dynamic>);
-      print(futureRes);
-      return futureRes;
-    }
-    print('is not future');
-    print(res);
-    return res;
+    // if (res.reflectee is Future) {
+    //   print('is future');
+    //   print(res);
+    //   print(res.reflectee); await (res.reflectee as FutureOr<dynamic>);
+    //   print(futureRes);
+    //   return futureRes;
+    // }
+    // print('is not future');
+    // print(res);
+    // return res;
+    return await (res.reflectee as FutureOr<dynamic>);
   }
 
   MethodParameters methodArgumentsByMap(
