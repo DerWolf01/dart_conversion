@@ -85,7 +85,7 @@ class MethodService {
                     (element) =>
                         element.type.reflectedType == anotation.anotationType,
                   )
-                  .firsts);
+                  .first);
           continue;
         }
         print('anotation $anotation $name $argumentsMap[name]');
