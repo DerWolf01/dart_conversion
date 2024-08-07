@@ -87,14 +87,12 @@ class MethodService {
 
         print("anotationInstance $anotationInstance");
         if (param.isNamed) {
-          print(
-              'anotation $anotation $name ${argumentsMap[name].toString().substring(0, 21)}');
+          print('anotation $anotation $name ${argumentsMap[name]}');
           namedArgs[name] = anotation.generateValue(
               name, argumentsMap[name], anotationInstance);
           continue;
         }
-        print(
-            'anotation $anotation $name ${argumentsMap[name].toString().substring(0, 21)}');
+        print('anotation $anotation $name ${argumentsMap[name]}');
         args.add(anotation.generateValue(
             name, argumentsMap[name], anotationInstance));
         continue;

@@ -1,11 +1,35 @@
 import 'dart:io';
+import 'dart:mirrors';
 
 import 'package:dart_conversion/dart_conversion.dart';
 
 void main() async {
   final f = await File("./hello.txt").create();
   await f.writeAsString("Hello World");
-  print(ConversionService.objectToMap(SignUpForm.init(User.init("test", f))));
+  // print(ConversionService.mapToObject<SignUpForm>(
+  //     ConversionService.objectToMap(SignUpForm.init(User.init("test", f)))));
+  final m = reflectClass(SignUpForm)
+      .declarations
+      .entries
+      .where((element) {
+        print(MirrorSystem.getName(element.key));
+        return MirrorSystem.getName(element.key) == "SignUpForm.init";
+      })
+      .firstOrNull
+      ?.value as MethodMirror?;
+
+  print(m);
+  if (m == null) {
+    return;
+  }
+  final mParams = methodService.methodArgumentsByMap(
+      methodMirror: m,
+      argumentsMap: {
+        "user": ConversionService.objectToMap(User.init("test", f))
+      });
+  print(mParams);
+  print(mParams.args);
+  print(mParams.namedArgs);
   // final SignUpForm res = ConversionService.mapToObject(
   //    ,
   //     type: SignUpForm);
@@ -14,6 +38,7 @@ void main() async {
 }
 
 class SignUpResult {
+  SignUpResult.init(this.token);
   late final String token;
 }
 

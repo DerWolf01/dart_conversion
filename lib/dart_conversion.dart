@@ -39,8 +39,7 @@ class ConversionService {
 
       var fieldName = MirrorSystem.getName(name);
       var value = mirror.getField(name).reflectee;
-      print(
-          "converting $fieldName<${value.runtimeType}>:${value.toString().substring(0, 21)} to map");
+      print("converting $fieldName<${value.runtimeType}>:$value to map");
       if (value == null) {
         if (!isNullable(reflectType(t))) {
           throw Exception("Field $fieldName is not nullable");
@@ -50,10 +49,10 @@ class ConversionService {
       } else if (t is File || t == File || value is File) {
         map[fieldName] = base64.encode((value as File).readAsBytesSync());
       } else if (isPrimitive(t) || value is Map<String, dynamic>) {
-        print("isPrimitive: ${value.toString().substring(0, 21)} to map ");
+        print("isPrimitive: $value to map ");
         map[fieldName] = value;
       } else if (value is List) {
-        print("isList: ${value.toString().substring(0, 21)} to map ");
+        print("isList: $value to map ");
         map[fieldName] = value.map((e) => mapToObject(e, type: t)).toList();
       } else {
         map[fieldName] = objectToMap(value);
@@ -90,12 +89,12 @@ class ConversionService {
           instance.setField(key, f);
 
           continue;
-        } catch (e) {
+        } catch (e, s) {
           print(e);
+          print(s);
         }
       } else if (isPrimitive(dec.type.reflectedType)) {
-        print(
-            "primitive: ${value.toString().substring(0, 21)} to map ${dec.simpleName} ");
+        print("primitive: $value to map ${dec.simpleName} ");
         if (value.runtimeType == dec.type.reflectedType) {
           instance.setField(key, value);
           continue;
@@ -108,7 +107,7 @@ class ConversionService {
                 .map((e) => mapToObject(e, type: dec.type.reflectedType))
                 .toList());
       } else {
-        print("object: ${value.toString().substring(0, 21)} to map ");
+        print("object: $value to map ");
         instance.setField(
             key, mapToObject(value, type: dec.type.reflectedType));
       }
