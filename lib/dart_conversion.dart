@@ -209,21 +209,6 @@ class ConversionService {
     }
   }
 
-  /// Converts an object to a JSON string or its string representation.
-  ///
-  /// \param object The object to convert.
-  /// \return A JSON string or string representation of the object.
-  static String convertToStringOrJson(dynamic object) {
-    if (object is String || object is num || object is bool) {
-      return object.toString();
-    }
-    try {
-      return jsonEncode(objectToMap(object));
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
   static String encodeJSON(dynamic object) {
     if (isPrimitive(object)) {
       return jsonEncode(object);

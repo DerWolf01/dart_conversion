@@ -43,6 +43,8 @@ class MethodService {
         methodMirror: methodMirror,
         argumentsMap: argumentsMap,
         onParameterAnotation: onParameterAnotation);
+    print(
+        "methodParameters ${methodParameters.args} ${methodParameters.namedArgs}");
     late final InstanceMirror res;
     try {
       res = holderMirror.invoke(
