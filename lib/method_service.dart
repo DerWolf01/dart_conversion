@@ -39,6 +39,7 @@ class MethodService {
       required MethodMirror methodMirror,
       required Map<String, dynamic> argumentsMap,
       OnParameterAnotations? onParameterAnotation}) async {
+    print("argumentsMap $argumentsMap");
     final methodParameters = methodArgumentsByMap(
         methodMirror: methodMirror,
         argumentsMap: argumentsMap,
