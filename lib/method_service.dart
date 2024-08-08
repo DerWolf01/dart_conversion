@@ -39,13 +39,11 @@ class MethodService {
       required MethodMirror methodMirror,
       required Map<String, dynamic> argumentsMap,
       OnParameterAnotations? onParameterAnotation}) async {
-    print("argumentsMap $argumentsMap");
     final methodParameters = methodArgumentsByMap(
         methodMirror: methodMirror,
         argumentsMap: argumentsMap,
         onParameterAnotation: onParameterAnotation);
-    print(
-        "methodParameters ${methodParameters.args} ${methodParameters.namedArgs}");
+
     late final InstanceMirror res;
     try {
       res = holderMirror.invoke(
@@ -76,7 +74,7 @@ class MethodService {
             (element) => element.checkAnotation(param) != null,
           )
           .firstOrNull;
-      print("anotation $anotation");
+
       if (anotation != null) {
         final anotationInstance = param.metadata
             .where(
@@ -86,14 +84,12 @@ class MethodService {
             .first
             .reflectee;
 
-        print("anotationInstance $anotationInstance");
         if (param.isNamed) {
-          print('anotation $anotation $name ${argumentsMap[name]}');
           namedArgs[name] = anotation.generateValue(
               name, argumentsMap[name], anotationInstance);
           continue;
         }
-        print('anotation $anotation $name ${argumentsMap[name]}');
+
         args.add(anotation.generateValue(
             name, argumentsMap[name], anotationInstance));
         continue;

@@ -34,25 +34,21 @@ class ConversionService {
         continue;
       }
       final t = declaration.type.reflectedType;
-      // print(
-      // "name: $name declaration: $declaration value: ${mirror.getField(name).reflectee} ${(declaration).type.reflectedType}");
 
       var fieldName = MirrorSystem.getName(name);
       var value = mirror.getField(name).reflectee;
-      print("converting $fieldName<${value.runtimeType}>:$value to map");
+
       if (value == null) {
         if (!isNullable(reflectType(t))) {
           throw Exception("Field $fieldName is not nullable");
         }
-        print("isNull");
+
         map[fieldName] = null;
       } else if (t is File || t == File || value is File) {
         map[fieldName] = base64.encode((value as File).readAsBytesSync());
       } else if (isPrimitive(t) || value is Map<String, dynamic>) {
-        print("isPrimitive: $value to map ");
         map[fieldName] = value;
       } else if (value is List) {
-        print("isList: $value to map ");
         map[fieldName] = value.map((e) => mapToObject(e, type: t)).toList();
       } else {
         map[fieldName] = objectToMap(value);
@@ -70,10 +66,7 @@ class ConversionService {
       final dec = decEntry.value as VariableMirror;
 
       final dynamic value = map[MirrorSystem.getName(key)];
-      print(
-          "key: $key dec: $dec type: ${dec.type.reflectedType} valueType: ${value.runtimeType}");
-      print(
-          "key: $key dec: $dec type: ${dec.type.reflectedType} valueType: ${value.runtimeType}");
+
       if (value.runtimeType == dec.type.reflectedType) {
         instance.setField(key, value);
         continue;
@@ -94,7 +87,6 @@ class ConversionService {
           print(s);
         }
       } else if (isPrimitive(dec.type.reflectedType)) {
-        print("primitive: $value to map ${dec.simpleName} ");
         if (value.runtimeType == dec.type.reflectedType) {
           instance.setField(key, value);
           continue;
@@ -107,7 +99,6 @@ class ConversionService {
                 .map((e) => mapToObject(e, type: dec.type.reflectedType))
                 .toList());
       } else {
-        print("object: $value to map ");
         instance.setField(
             key, mapToObject(value, type: dec.type.reflectedType));
       }
@@ -135,37 +126,26 @@ class ConversionService {
   static dynamic convert<T>({Type? type, dynamic value}) {
     final t = type ?? T;
 
-    print("type: $t  valueType: ${value.runtimeType}");
-
     if (value == null && isNullable(reflectType(t))) {
-      print("isNull");
       return null;
     } else if (t is File || t == File) {
-      print("isFile: $value to map ");
       final f = File("random.file");
       f.writeAsBytesSync(Uint8List.fromList(value));
 
       return f;
     } else if (isPrimitive(t)) {
-      print("isPrimitive: $value to map ");
       if (value.runtimeType == t) {
         return value;
       }
       return convertPrimitive(value, t);
     } else if (value is List) {
-      print("isList: $value to map ");
       return value.map((e) => mapToObject(e, type: t)).toList();
     } else if (value is Map<String, dynamic>) {
-      print("isMap: $value to map ");
-
       return mapToObject(value, type: t);
     } else {
-      print("is${value.runtimeType}: $value to map ");
-
       if (value.runtimeType == t) {
         return value;
       }
-      print("isObject: $value to map ");
 
       return objectToMap(value);
     }
@@ -215,7 +195,7 @@ class ConversionService {
       return jsonEncode(object);
     }
     final map = objectToMap(object);
-    print("map: $map");
+
     late final String json;
 
     try {
