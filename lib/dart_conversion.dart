@@ -39,10 +39,6 @@ class ConversionService {
       var value = mirror.getField(name).reflectee;
 
       if (value == null) {
-        if (!isNullable(reflectType(t))) {
-          throw Exception("Field $fieldName is not nullable");
-        }
-
         map[fieldName] = null;
       } else if (t is File || t == File || value is File) {
         map[fieldName] = base64.encode((value as File).readAsBytesSync());
@@ -70,8 +66,14 @@ class ConversionService {
       if (value.runtimeType == dec.type.reflectedType) {
         instance.setField(key, value);
         continue;
-      } else if (value == null && isNullable(dec.type)) {
-        instance.setField(key, null);
+      } else if (value == null) {
+        try {
+          instance.setField(key, null);
+        } catch (e, s) {
+          print(e);
+          print(s);
+          throw Exception("Field ${MirrorSystem.getName(key)} is not nullable");
+        }
         continue;
       } else if (dec.type.reflectedType == File ||
           dec.type.reflectedType is File) {
@@ -126,7 +128,7 @@ class ConversionService {
   static dynamic convert<T>({Type? type, dynamic value}) {
     final t = type ?? T;
 
-    if (value == null && isNullable(reflectType(t))) {
+    if (value == null) {
       return null;
     } else if (t is File || t == File) {
       final f = File("random.file");
@@ -228,12 +230,6 @@ class ConversionService {
       object == (List<num>) ||
       object == null ||
       object == (List<bool>));
-
-  static isNullable(TypeMirror type) =>
-      (reflect(null).type.isSubtypeOf(type)) ||
-      (reflect(null).type.isAssignableTo(type)) ||
-      (type.reflectedType == Null) ||
-      (type.reflectedType == dynamic);
 
   static isIntList(List object) => object.every(
         (element) => element is int || element == int,
