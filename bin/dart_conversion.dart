@@ -4,9 +4,7 @@ import 'dart:mirrors';
 import 'package:dart_conversion/dart_conversion.dart';
 
 typedef NullableString = String?;
-void main() async {
-  print(ConversionService.isNullable(reflectType(NullableString)));
-}
+void main() async {}
 
 class SignUpResult {
   SignUpResult.init(this.token);
