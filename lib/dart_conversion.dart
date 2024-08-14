@@ -114,6 +114,7 @@ class ConversionService {
           print(e);
           print(s);
         }
+        continue;
       } else if (value is List) {
         instance.setField(
             key,
