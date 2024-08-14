@@ -42,7 +42,9 @@ class ConversionService {
         map[fieldName] = null;
       } else if (t is File || t == File || value is File) {
         map[fieldName] = base64.encode((value as File).readAsBytesSync());
-      } else if (isPrimitive(t) || value is Map<String, dynamic>) {
+      } else if (isPrimitive(t) ||
+          value is Map<String, dynamic> ||
+          value is DateTime) {
         map[fieldName] = value;
       } else if (value is List) {
         map[fieldName] = value.map((e) => mapToObject(e, type: t)).toList();
@@ -94,6 +96,24 @@ class ConversionService {
           continue;
         }
         instance.setField(key, convertPrimitive(value, dec.type.reflectedType));
+      } else if (dec.type.isAssignableTo(reflectClass(DateTime)) ||
+          dec.type.isSubtypeOf(reflectClass(DateTime)) ||
+          dec.type.reflectedType == DateTime) {
+        try {
+          if (value is String) {
+            instance.setField(key, DateTime.parse(value));
+          } else if (value is int) {
+            instance.setField(key, DateTime.fromMillisecondsSinceEpoch(value));
+          } else if (value is DateTime) {
+            instance.setField(key, value);
+          } else {
+            throw FormatException(
+                "Invalid date format $value: ${value.runtimeType}");
+          }
+        } catch (e, s) {
+          print(e);
+          print(s);
+        }
       } else if (value is List) {
         instance.setField(
             key,
