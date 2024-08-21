@@ -95,6 +95,7 @@ class ConversionService {
           instance.setField(key, value);
           continue;
         }
+        print("Converting primitive $value to ${dec.type.reflectedType}");
         instance.setField(key, convertPrimitive(value, dec.type.reflectedType));
       } else if (dec.type.isAssignableTo(reflectClass(DateTime)) ||
           dec.type.isSubtypeOf(reflectClass(DateTime)) ||
@@ -160,6 +161,7 @@ class ConversionService {
       if (value.runtimeType == t) {
         return value;
       }
+      print("Converting primitive $value to $t");
       return convertPrimitive(value, t);
     } else if (value is List) {
       return value.map((e) => mapToObject(e, type: t)).toList();
