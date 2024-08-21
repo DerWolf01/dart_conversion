@@ -198,6 +198,21 @@ class ConversionService {
   }
 
   static dynamic convertPrimitive(dynamic body, Type T) {
+    if (T == List<String>) {
+      return (body as List).map((e) => e.toString()).toList();
+    }
+    if (T == List<int>) {
+      return (body as List).map((e) => int.parse(e.toString())).toList();
+    }
+    if (T == List<double>) {
+      return (body as List).map((e) => double.parse(e.toString())).toList();
+    }
+    if (T == List<num>) {
+      return (body as List).map((e) => num.parse(e.toString())).toList();
+    }
+    if (T == List<bool>) {
+      return (body as List).map((e) => e == "true").toList();
+    }
     if (T == dynamic) {
       return jsonDecode(body);
     }
