@@ -123,7 +123,6 @@ class ConversionService {
         continue;
       } else if (value is List) {
         if (value.isEmpty) {
-          instance.setField(key, []);
           continue;
         }
         instance.setField(
