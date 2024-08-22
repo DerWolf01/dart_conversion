@@ -30,6 +30,7 @@ class ConversionService {
     for (final entry in declarations(classMirror).entries) {
       final declaration = entry.value;
       final name = entry.key;
+
       if (!(declaration is VariableMirror && !declaration.isStatic)) {
         continue;
       }
@@ -37,7 +38,7 @@ class ConversionService {
 
       var fieldName = MirrorSystem.getName(name);
       var value = mirror.getField(name).reflectee;
-
+      print("converting $value to $t");
       if (value == null) {
         map[fieldName] = null;
       } else if (t is File || t == File || value is File) {
@@ -64,7 +65,7 @@ class ConversionService {
       final dec = decEntry.value as VariableMirror;
 
       final dynamic value = map[MirrorSystem.getName(key)];
-
+      print("converting $value to ${dec.type.reflectedType}");
       if (value.runtimeType == dec.type.reflectedType) {
         instance.setField(key, value);
         continue;
