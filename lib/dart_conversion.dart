@@ -48,6 +48,10 @@ class ConversionService {
           value is DateTime) {
         map[fieldName] = value;
       } else if (value is List) {
+        if (value.isEmpty) {
+          map[fieldName] = [];
+          continue;
+        }
         map[fieldName] = value.map((e) => mapToObject(e, type: t)).toList();
       } else {
         map[fieldName] = objectToMap(value);
@@ -118,6 +122,10 @@ class ConversionService {
         }
         continue;
       } else if (value is List) {
+        if (value.isEmpty) {
+          instance.setField(key, []);
+          continue;
+        }
         instance.setField(
             key,
             value
@@ -165,6 +173,9 @@ class ConversionService {
       print("Converting primitive $value to $t");
       return convertPrimitive(value, t);
     } else if (value is List) {
+      if (value.isEmpty) {
+        return [];
+      }
       return value.map((e) => mapToObject(e, type: t)).toList();
     } else if (value is Map<String, dynamic>) {
       return mapToObject(value, type: t);
