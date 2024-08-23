@@ -52,7 +52,7 @@ class ConversionService {
           map[fieldName] = [];
           continue;
         }
-        map[fieldName] = value.map((e) => mapToObject(e, type: t)).toList();
+        map[fieldName] = value.map((e) => objectToMap(e)).toList();
       } else {
         map[fieldName] = objectToMap(value);
       }
