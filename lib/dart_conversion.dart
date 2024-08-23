@@ -8,6 +8,8 @@ import 'dart:io';
 import 'dart:mirrors';
 import 'dart:typed_data';
 
+import 'package:dart_conversion/list_of.dart';
+
 class ConversionService {
   static Map<Symbol, DeclarationMirror> declarations(ClassMirror classMirror) {
     Map<Symbol, DeclarationMirror> decs = {...classMirror.declarations};
@@ -125,11 +127,27 @@ class ConversionService {
         if (value.isEmpty) {
           continue;
         }
-        instance.setField(
-            key,
-            value
-                .map((e) => mapToObject(e, type: dec.type.reflectedType))
-                .toList());
+
+        final listTypeArgument =
+            dec.type.typeArguments.firstOrNull?.reflectedType;
+        final listOfAnotation =
+            dec.metadata.where((e) => e.reflectee is ListOf).firstOrNull;
+        if (listOfAnotation == null) {
+          throw Exception(
+              "Field ${MirrorSystem.getName(key)} of type List<$listTypeArgument> in class ${dec.type.reflectedType} has to be anotated with @ListOf(type) to ensure conversion");
+        }
+        if (listTypeArgument != dynamic) {
+          throw Exception(
+              "Field ${MirrorSystem.getName(key)} of type List<$listTypeArgument> in class ${dec.type.reflectedType} should have a type argument of dynamic and should be anotated with @ListOf(type) to ensure conversion");
+        }
+
+        print("Converting list $value to $listTypeArgument");
+        final listEntries = value
+            .map((e) =>
+                mapToObject(e, type: listOfAnotation.getField(#type).reflectee))
+            .toList();
+        print("Set $listEntries for ${MirrorSystem.getName(key)}");
+        instance.setField(key, listEntries);
       } else {
         instance.setField(
             key, mapToObject(value, type: dec.type.reflectedType));
