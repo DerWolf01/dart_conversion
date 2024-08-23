@@ -2,6 +2,7 @@ library dart_conversion;
 
 export "./dart_conversion.dart";
 export "./method_service.dart";
+export 'list_of.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
