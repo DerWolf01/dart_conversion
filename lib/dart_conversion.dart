@@ -265,6 +265,7 @@ class ConversionService {
     }
     final map = objectToMap(object);
 
+    print("encodeJSON --> $map");
     late final String json;
 
     try {
