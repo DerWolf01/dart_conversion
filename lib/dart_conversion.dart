@@ -10,6 +10,7 @@ import 'dart:mirrors';
 import 'dart:typed_data';
 
 import 'package:dart_conversion/list_of.dart';
+import 'package:dart_conversion/method_service.dart';
 
 class ConversionService {
   static Map<Symbol, DeclarationMirror> declarations(ClassMirror classMirror) {
@@ -29,11 +30,11 @@ class ConversionService {
     var classMirror = mirror.type;
 
     var map = <String, dynamic>{};
+    print("objectToMap --> ${classMirror.name}");
 
     for (final entry in declarations(classMirror).entries) {
       final declaration = entry.value;
       final name = entry.key;
-
       if (!(declaration is VariableMirror && !declaration.isStatic)) {
         continue;
       }
@@ -42,10 +43,12 @@ class ConversionService {
       var fieldName = MirrorSystem.getName(name);
       var value = mirror.getField(name).reflectee;
 
+      print("objectToMap --> $fieldName --> $value");
       if (value == null) {
         map[fieldName] = null;
       } else if (t is File || t == File || value is File) {
-        map[fieldName] = base64.encode((value as File).readAsBytesSync());
+        final bytes = (value as File).readAsBytesSync();
+        map[fieldName] = base64Encode(bytes);
       } else if (isPrimitive(t) ||
           value is Map<String, dynamic> ||
           value is DateTime) {
