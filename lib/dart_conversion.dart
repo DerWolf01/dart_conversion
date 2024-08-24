@@ -43,7 +43,8 @@ class ConversionService {
       var fieldName = MirrorSystem.getName(name);
       var value = mirror.getField(name).reflectee;
 
-      print("objectToMap --> $fieldName --> $value");
+      print(
+          "objectToMap --> $fieldName --> ${value.toString().substring(0, 55)}");
       if (value == null) {
         map[fieldName] = null;
       } else if (t is File || t == File || value is File) {
@@ -92,7 +93,7 @@ class ConversionService {
           dec.type.reflectedType is File) {
         try {
           print(
-              "Setting file for ${MirrorSystem.getName(key)} with value $value");
+              "Setting file for ${MirrorSystem.getName(key)} with value ${value.toString().substring(0, 55)}");
           final f = File("./random.file");
 
           f.writeAsBytesSync(base64Decode(value));
