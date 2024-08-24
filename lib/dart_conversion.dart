@@ -68,7 +68,7 @@ class ConversionService {
 
   static T mapToObject<T>(Map<String, dynamic> map, {Type? type}) {
     var classMirror = reflectClass(type ?? T);
-
+    print("converting $map to $classMirror");
     InstanceMirror instance = classMirror.newInstance(Symbol(""), []);
     for (final decEntry in declarations(classMirror).entries) {
       final key = decEntry.key;
