@@ -273,6 +273,7 @@ class ConversionService {
       print(e);
       print(s);
     }
+    print("Encoded $json");
     return json;
   }
 
