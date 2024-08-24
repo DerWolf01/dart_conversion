@@ -91,9 +91,11 @@ class ConversionService {
       } else if (dec.type.reflectedType == File ||
           dec.type.reflectedType is File) {
         try {
+          print(
+              "Setting file for ${MirrorSystem.getName(key)} with value $value");
           final f = File("./random.file");
 
-          f.writeAsBytesSync(base64.decode(value));
+          f.writeAsBytesSync(base64Decode(value));
           instance.setField(key, f);
 
           continue;
