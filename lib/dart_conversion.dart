@@ -96,6 +96,8 @@ class ConversionService {
           final f = File("./random.file");
 
           f.writeAsBytesSync(base64Decode(value));
+          print(
+              "Set file for ${MirrorSystem.getName(key)} with value $f and contents ${f.readAsBytesSync()}");
           instance.setField(key, f);
 
           continue;
