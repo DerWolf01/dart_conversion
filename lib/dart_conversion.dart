@@ -170,10 +170,18 @@ class ConversionService {
   }
 
   static Future<T> requestToObject<T>(HttpRequest request, {Type? type}) async {
-    return mapToObject<T>(await requestToRequestDataMap(request), type: type);
+    try {
+      final body = await requestToRequestDataMap(request);
+
+      return mapToObject<T>(body, type: type);
+    } catch (e, s) {
+      print(e);
+      print(s);
+      throw ConversionException("Couldn't convert request to object");
+    }
   }
 
-  static Future<Map<String, dynamic>> requestToRequestDataMap(
+  static FutureOr<Map<String, dynamic>> requestToRequestDataMap(
       HttpRequest request,
       {Type? type}) async {
     return request.method == "GET"
