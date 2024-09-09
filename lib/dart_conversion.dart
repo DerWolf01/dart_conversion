@@ -69,8 +69,12 @@ class ConversionService {
   static T mapToObject<T>(Map<String, dynamic> map, {Type? type}) {
     var classMirror = reflectClass(type ?? T);
     print("converting $map to $classMirror");
+    final declarations = ConversionService.declarations(classMirror);
+    final mapIncludesAllValues = declarations.keys.every(
+      (element) => map.keys.contains(MirrorSystem.getName(element)),
+    );
     InstanceMirror instance = classMirror.newInstance(Symbol(""), []);
-    for (final decEntry in declarations(classMirror).entries) {
+    for (final decEntry in declarations.entries) {
       final key = decEntry.key;
       final dec = decEntry.value as VariableMirror;
 
@@ -85,19 +89,16 @@ class ConversionService {
         } catch (e, s) {
           print(e);
           print(s);
-          throw Exception("Field ${MirrorSystem.getName(key)} is not nullable");
+          throw ConversionException("${MirrorSystem.getName(key)} is missing");
         }
         continue;
       } else if (dec.type.reflectedType == File ||
           dec.type.reflectedType is File) {
         try {
-          print(
-              "Setting file for ${MirrorSystem.getName(key)} with value ${value}");
           final f = File("./random.file");
 
           f.writeAsBytesSync(base64Decode(value));
-          print(
-              "Set file for ${MirrorSystem.getName(key)} with value $f and contents ${f.readAsBytesSync()}");
+
           instance.setField(key, f);
 
           continue;
@@ -310,4 +311,10 @@ class ConversionService {
   static isIntList(List object) => object.every(
         (element) => element is int || element == int,
       );
+}
+
+class ConversionException extends FormatException {
+  ConversionException(
+    super.message,
+  );
 }
