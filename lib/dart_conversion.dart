@@ -30,8 +30,6 @@ class ConversionService {
     var classMirror = mirror.type;
 
     var map = <String, dynamic>{};
-    print("objectToMap --> ${classMirror.name}");
-
     for (final entry in declarations(classMirror).entries) {
       final declaration = entry.value;
       final name = entry.key;
@@ -43,7 +41,6 @@ class ConversionService {
       var fieldName = MirrorSystem.getName(name);
       var value = mirror.getField(name).reflectee;
 
-      print("objectToMap --> $fieldName --> ${value}");
       if (value == null) {
         map[fieldName] = null;
       } else if (t is File || t == File || value is File) {
@@ -68,7 +65,7 @@ class ConversionService {
 
   static T mapToObject<T>(Map<String, dynamic> map, {Type? type}) {
     var classMirror = reflectClass(type ?? T);
-    print("converting $map to $classMirror");
+
     final declarations = ConversionService.declarations(classMirror);
     final mapIncludesAllValues = declarations.keys.every(
       (element) => map.keys.contains(MirrorSystem.getName(element)),
@@ -154,7 +151,7 @@ class ConversionService {
             .map((e) =>
                 mapToObject(e, type: listOfAnotation.getField(#type).reflectee))
             .toList();
-        print("Set $listEntries for ${MirrorSystem.getName(key)}");
+
         instance.setField(key, listEntries);
       } else {
         instance.setField(
@@ -281,7 +278,6 @@ class ConversionService {
     }
     final map = objectToMap(object);
 
-    print("encodeJSON --> $map");
     late final String json;
 
     try {
@@ -290,7 +286,7 @@ class ConversionService {
       print(e);
       print(s);
     }
-    print("Encoded $json");
+
     return json;
   }
 
