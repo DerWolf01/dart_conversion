@@ -25,8 +25,11 @@ class ConversionService {
     if (value == null) {
       return null;
     } else if (t is File || t == File) {
+      if (value is! List) {
+        throw Exception("File should be a list of bytes");
+      }
       final f = File("random.file");
-      f.writeAsBytesSync(Uint8List.fromList(value));
+      f.writeAsBytesSync(Uint8List.fromList(value.whereType<int>().toList()));
 
       return f;
     } else if (isPrimitive(t)) {
