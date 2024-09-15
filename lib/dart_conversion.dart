@@ -29,7 +29,7 @@ class ConversionService {
         throw Exception("File should be a list of bytes");
       }
       final f = File("random.file");
-      f.writeAsBytesSync(Uint8List.fromList(value.whereType<int>().toList()));
+      f.writeAsBytesSync(value.whereType<int>().toList());
 
       return f;
     } else if (isPrimitive(t)) {
@@ -194,8 +194,10 @@ class ConversionService {
           dec.type.reflectedType is File) {
         try {
           final f = File("./random.file");
-
-          f.writeAsBytesSync(value);
+          if (value is! List) {
+            throw Exception("File should be a list of bytes");
+          }
+          f.writeAsBytesSync(value.whereType<int>().toList());
 
           instance.setField(key, f);
 
