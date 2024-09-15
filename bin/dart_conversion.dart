@@ -1,14 +1,13 @@
 import 'dart:io';
-import 'dart:mirrors';
 
 import 'package:dart_conversion/dart_conversion.dart';
-import 'package:dart_conversion/list_of.dart';
 
 void main() async {
   final json = ConversionService.encodeJSON(ProfilePicture.init(
       File("randome.txt")..writeAsStringSync("adsasdasds")));
 
   print(json);
+
   final object = ConversionService.jsonToObject<ProfilePicture>(json);
   print(object?.file);
 }
