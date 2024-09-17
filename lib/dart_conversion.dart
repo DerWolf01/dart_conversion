@@ -104,7 +104,7 @@ class ConversionService {
       return jsonEncode(object);
     }
     final map = objectToMap(object, json: true);
-
+    print("map: $map");
     late final String json;
 
     try {
