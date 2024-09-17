@@ -103,7 +103,7 @@ class ConversionService {
     if (isPrimitive(object)) {
       return jsonEncode(object);
     }
-    final map = objectToMap(object);
+    final map = objectToMap(object, json: true);
 
     late final String json;
 
@@ -190,6 +190,16 @@ class ConversionService {
           throw ConversionException("${MirrorSystem.getName(key)} is missing");
         }
         continue;
+      } else if (dec.type.reflectedType == DateTime) {
+        if (value is DateTime) {
+          instance.setField(key, value);
+        } else if (value is String) {
+          instance.setField(key, DateTime.parse(value));
+        } else if (value is int) {
+          instance.setField(key, DateTime.fromMillisecondsSinceEpoch(value));
+        } else {
+          throw Exception("Invalid date format $value: ${value.runtimeType}");
+        }
       } else if (dec.type.reflectedType == File ||
           dec.type.reflectedType is File) {
         try {
@@ -264,7 +274,7 @@ class ConversionService {
     return instance.reflectee as T;
   }
 
-  static Map<String, dynamic> objectToMap(dynamic object) {
+  static Map<String, dynamic> objectToMap(dynamic object, {bool json = false}) {
     var mirror = reflect(object);
     var classMirror = mirror.type;
 
@@ -282,6 +292,12 @@ class ConversionService {
 
       if (value == null) {
         map[fieldName] = null;
+      } else if (t is DateTime || t == DateTime || value is DateTime) {
+        if (json) {
+          map[fieldName] = (value as DateTime).toIso8601String();
+        } else {
+          map[fieldName] = (value as DateTime);
+        }
       } else if (t is File || t == File || value is File) {
         final bytes = (value as File).readAsBytesSync();
         map[fieldName] = bytes.toList();
