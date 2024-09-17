@@ -296,7 +296,8 @@ class ConversionService {
         print("Field $fieldName is a DateTime");
         if (json) {
           map[fieldName] = (value as DateTime).toIso8601String();
-          print("Field $fieldName is a Iso8601String ${map[fieldName]}");
+          print(
+              "Field $fieldName is a Iso8601String ${map[fieldName]} <-- ${map[fieldName].runtimeType}");
           continue;
         } else {
           map[fieldName] = (value as DateTime);
