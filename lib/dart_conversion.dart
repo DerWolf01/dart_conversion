@@ -295,22 +295,27 @@ class ConversionService {
       } else if (t is DateTime || t == DateTime || value is DateTime) {
         if (json) {
           map[fieldName] = (value as DateTime).toIso8601String();
+          continue;
         } else {
           map[fieldName] = (value as DateTime);
+          continue;
         }
       } else if (t is File || t == File || value is File) {
         final bytes = (value as File).readAsBytesSync();
         map[fieldName] = bytes.toList();
+        continue;
       } else if (isPrimitive(t) ||
           value is Map<String, dynamic> ||
           value is DateTime) {
         map[fieldName] = value;
+        continue;
       } else if (value is List) {
         if (value.isEmpty) {
           map[fieldName] = [];
           continue;
         }
         map[fieldName] = value.map((e) => objectToMap(e)).toList();
+        continue;
       } else {
         map[fieldName] = objectToMap(value);
       }
