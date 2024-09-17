@@ -293,8 +293,10 @@ class ConversionService {
       if (value == null) {
         map[fieldName] = null;
       } else if (t is DateTime || t == DateTime || value is DateTime) {
+        print("Field $fieldName is a DateTime");
         if (json) {
           map[fieldName] = (value as DateTime).toIso8601String();
+          print("Field $fieldName is a Iso8601String ${map[fieldName]}");
           continue;
         } else {
           map[fieldName] = (value as DateTime);
