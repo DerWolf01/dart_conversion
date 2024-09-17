@@ -317,10 +317,10 @@ class ConversionService {
           map[fieldName] = [];
           continue;
         }
-        map[fieldName] = value.map((e) => objectToMap(e)).toList();
+        map[fieldName] = value.map((e) => objectToMap(e, json: json)).toList();
         continue;
       } else {
-        map[fieldName] = objectToMap(value);
+        map[fieldName] = objectToMap(value, json: json);
       }
     }
     return map;
