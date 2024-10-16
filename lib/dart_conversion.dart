@@ -147,18 +147,19 @@ class ConversionService {
   ///
   /// \param body The JSON string to convert.
   /// \return An instance of type T.
-  static T? jsonToObject<T>(dynamic body) {
-    if (T == dynamic) {
-      return jsonDecode(body) as T;
+  static dynamic jsonToObject<T>(dynamic body, {Type? type}) {
+    final t = type ?? T;
+    if (t == dynamic) {
+      return jsonDecode(body);
     }
-    if (T == String) {
-      return body as T;
-    } else if (T == int) {
-      return int.parse(body) as T;
-    } else if (T == double) {
-      return double.parse(body) as T;
-    } else if (T == bool) {
-      return (body == "true") as T;
+    if (t == String) {
+      return body;
+    } else if (t == int) {
+      return int.parse(body);
+    } else if (t == double) {
+      return double.parse(body);
+    } else if (t == bool) {
+      return (body == "true");
     }
 
     return mapToObject<T>(jsonDecode(body));
