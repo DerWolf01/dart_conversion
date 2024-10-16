@@ -7,6 +7,7 @@ import 'dart:mirrors';
 import 'dart:typed_data';
 
 import 'package:dart_conversion/list_of.dart';
+import 'package:dart_conversion/my_logger.dart';
 
 export "./dart_conversion.dart";
 export "./method_service.dart";
@@ -23,33 +24,60 @@ class ConversionService {
     final t = type ?? T;
 
     if (value == null) {
+      myLogger.d(
+        "Cannot convert null value to $t",
+        header: "Value is null",
+      );
       return null;
     } else if (t is File || t == File) {
-      if (value is! List) {
-        throw Exception("File should be a list of bytes");
+      if (value is! List || value is! String) {
+        myLogger.e(
+          "File should be a list of bytes or base64 encoded string",
+          header: "Invalid file format",
+        );
+        throw Exception(
+            "File should be a list of bytes or base64 encoded string");
       }
+      if (value is String) {
+        myLogger.i("$value --> File",
+            header: "Converting base64 string to file");
+        final f = File("random.file");
+        f.writeAsBytesSync(base64Decode(value as String));
+
+        myLogger.i("$f", header: "File converted");
+        return f;
+      }
+
       final f = File("random.file");
       f.writeAsBytesSync(value.whereType<int>().toList());
-
+      myLogger.i("$f", header: "File converted");
       return f;
     } else if (isPrimitive(t)) {
       if (value.runtimeType == t) {
+        myLogger.i("$value --> $t", header: "Value is already of type $t");
         return value;
       }
 
+      myLogger.i("$value --> $t",
+          header: "Converting value to $t using convertPrimitive");
       return convertPrimitive(value, t);
     } else if (value is List) {
       if (value.isEmpty) {
+        myLogger.i("[] --> List<$t", header: "Empty list");
         return [];
       }
+      myLogger.i("$value --> List<$t", header: "Converting list to List<$t>");
       return value.map((e) => mapToObject(e, type: t)).toList();
     } else if (value is Map<String, dynamic>) {
+      myLogger.i("$value --> $t", header: "Converting map to $t");
       return mapToObject(value, type: t);
     } else {
+      myLogger.i("$value --> $t", header: "Converting object to $t");
       if (value.runtimeType == t) {
         return value;
       }
 
+      myLogger.i("$value --> $t", header: "Converting object to $t");
       return objectToMap(value);
     }
   }
@@ -110,8 +138,7 @@ class ConversionService {
     try {
       json = jsonEncode(map);
     } catch (e, s) {
-      print(e);
-      print(s);
+      myLogger.e(e, stackTrace: s, header: "Couldn't encode object to JSON");
     }
 
     return json;
@@ -186,8 +213,7 @@ class ConversionService {
         try {
           instance.setField(key, null);
         } catch (e, s) {
-          print(e);
-          print(s);
+          myLogger.e(e, stackTrace: s, header: "Couldn't set field to null");
           throw ConversionException("${MirrorSystem.getName(key)} is missing");
         }
         continue;
@@ -214,8 +240,8 @@ class ConversionService {
 
           continue;
         } catch (e, s) {
-          print(e);
-          print(s);
+          myLogger.e(e, stackTrace: s, header: "Couldn't set file");
+          throw ConversionException("Couldn't set file");
         }
       } else if (isPrimitive(dec.type.reflectedType)) {
         if (value.runtimeType == dec.type.reflectedType) {
@@ -239,8 +265,7 @@ class ConversionService {
                 "Invalid date format $value: ${value.runtimeType}");
           }
         } catch (e, s) {
-          print(e);
-          print(s);
+          myLogger.e(e, stackTrace: s, header: "Couldn't set date");
         }
         continue;
       } else if (value is List) {
@@ -335,8 +360,8 @@ class ConversionService {
 
       return mapToObject<T>(body, type: type);
     } catch (e, s) {
-      print(e);
-      print(s);
+      myLogger.e(e,
+          stackTrace: s, header: "Couldn't convert request to object");
       throw ConversionException("Couldn't convert request to object");
     }
   }

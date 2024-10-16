@@ -1,20 +1,26 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:mirrors';
-import 'dart:typed_data';
 
 import 'package:dart_conversion/dart_conversion.dart';
-
-typedef OnParameterAnotations = List<OnParameterAnotation>;
+import 'package:dart_conversion/my_logger.dart';
 
 MethodService get methodService => MethodService();
 
-class MethodService {
-  MethodService._();
+typedef OnParameterAnotations = List<OnParameterAnotation>;
 
+class MethodParameters {
+  final List<dynamic> args;
+  final Map<String, dynamic> namedArgs;
+
+  MethodParameters(this.args, this.namedArgs);
+}
+
+class MethodService {
   static MethodService? _instance;
 
   factory MethodService() => (_instance ??= MethodService._());
+
+  MethodService._();
 
   InstanceMirror invoke(
       {required InstanceMirror holderMirror,
@@ -53,8 +59,7 @@ class MethodService {
             (key, value) => MapEntry(Symbol(key), value),
           ));
     } catch (e, s) {
-      print('Error: $e');
-      print('Stack: $s');
+      myLogger.e(e, stackTrace: s, header: "Error while invoking method");
     }
 
     return await (res.reflectee as FutureOr<dynamic>);
@@ -113,19 +118,12 @@ class MethodService {
   }
 }
 
-class MethodParameters {
-  final List<dynamic> args;
-  final Map<String, dynamic> namedArgs;
-
-  MethodParameters(this.args, this.namedArgs);
-}
-
 class OnParameterAnotation<AnotationType> {
-  const OnParameterAnotation(this.generateValue);
-
-  Type get anotationType => AnotationType;
   final dynamic Function(String key, dynamic value, dynamic anotation)
       generateValue;
+
+  const OnParameterAnotation(this.generateValue);
+  Type get anotationType => AnotationType;
   AnotationType? checkAnotation(ParameterMirror parameterMirror) {
     return parameterMirror.metadata
         .where((element) =>
