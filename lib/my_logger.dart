@@ -33,7 +33,7 @@ class MyLogger {
           ),
       output: ConsoleOutput());
 
-  final bool enabled;
+  bool enabled;
   factory MyLogger() {
     if (_instance == null) {
       throw Exception("Logger not initialized");

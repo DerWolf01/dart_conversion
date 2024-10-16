@@ -20,18 +20,26 @@ class ConversionException extends FormatException {
 }
 
 class ConversionService {
+  static final MyLogger logger = MyLogger.init(enabled: true);
+
+  ConversionService.disableLogging() {
+    ConversionService.logger.enabled = true;
+  }
+  ConversionService.enableLogging() {
+    ConversionService.logger.enabled = false;
+  }
   static dynamic convert<T>({Type? type, dynamic value}) {
     final t = type ?? T;
 
     if (value == null) {
-      myLogger.d(
+      ConversionService.logger.d(
         "Cannot convert null value to $t",
         header: "Value is null",
       );
       return null;
     } else if (t is File || t == File) {
       if (value is! List || value is! String) {
-        myLogger.e(
+        ConversionService.logger.e(
           "File should be a list of bytes or base64 encoded string",
           header: "Invalid file format",
         );
@@ -39,45 +47,50 @@ class ConversionService {
             "File should be a list of bytes or base64 encoded string");
       }
       if (value is String) {
-        myLogger.i("$value --> File",
-            header: "Converting base64 string to file");
+        ConversionService.logger
+            .i("$value --> File", header: "Converting base64 string to file");
         final f = File("random.file");
         f.writeAsBytesSync(base64Decode(value as String));
 
-        myLogger.i("$f", header: "File converted");
+        ConversionService.logger.i("$f", header: "File converted");
         return f;
       }
 
       final f = File("random.file");
       f.writeAsBytesSync(value.whereType<int>().toList());
-      myLogger.i("$f", header: "File converted");
+      ConversionService.logger.i("$f", header: "File converted");
       return f;
     } else if (isPrimitive(t)) {
       if (value.runtimeType == t) {
-        myLogger.i("$value --> $t", header: "Value is already of type $t");
+        ConversionService.logger
+            .i("$value --> $t", header: "Value is already of type $t");
         return value;
       }
 
-      myLogger.i("$value --> $t",
+      ConversionService.logger.i("$value --> $t",
           header: "Converting value to $t using convertPrimitive");
       return convertPrimitive(value, t);
     } else if (value is List) {
       if (value.isEmpty) {
-        myLogger.i("[] --> List<$t", header: "Empty list");
+        ConversionService.logger.i("[] --> List<$t", header: "Empty list");
         return [];
       }
-      myLogger.i("$value --> List<$t", header: "Converting list to List<$t>");
+      ConversionService.logger
+          .i("$value --> List<$t", header: "Converting list to List<$t>");
       return value.map((e) => mapToObject(e, type: t)).toList();
     } else if (value is Map<String, dynamic>) {
-      myLogger.i("$value --> $t", header: "Converting map to $t");
+      ConversionService.logger
+          .i("$value --> $t", header: "Converting map to $t");
       return mapToObject(value, type: t);
     } else {
-      myLogger.i("$value --> $t", header: "Converting object to $t");
+      ConversionService.logger
+          .i("$value --> $t", header: "Converting object to $t");
       if (value.runtimeType == t) {
         return value;
       }
 
-      myLogger.i("$value --> $t", header: "Converting object to $t");
+      ConversionService.logger
+          .i("$value --> $t", header: "Converting object to $t");
       return objectToMap(value);
     }
   }
@@ -138,7 +151,8 @@ class ConversionService {
     try {
       json = jsonEncode(map);
     } catch (e, s) {
-      myLogger.e(e, stackTrace: s, header: "Couldn't encode object to JSON");
+      ConversionService.logger
+          .e(e, stackTrace: s, header: "Couldn't encode object to JSON");
     }
 
     return json;
@@ -213,7 +227,8 @@ class ConversionService {
         try {
           instance.setField(key, null);
         } catch (e, s) {
-          myLogger.e(e, stackTrace: s, header: "Couldn't set field to null");
+          ConversionService.logger
+              .e(e, stackTrace: s, header: "Couldn't set field to null");
           throw ConversionException("${MirrorSystem.getName(key)} is missing");
         }
         continue;
@@ -240,7 +255,8 @@ class ConversionService {
 
           continue;
         } catch (e, s) {
-          myLogger.e(e, stackTrace: s, header: "Couldn't set file");
+          ConversionService.logger
+              .e(e, stackTrace: s, header: "Couldn't set file");
           throw ConversionException("Couldn't set file");
         }
       } else if (isPrimitive(dec.type.reflectedType)) {
@@ -265,7 +281,8 @@ class ConversionService {
                 "Invalid date format $value: ${value.runtimeType}");
           }
         } catch (e, s) {
-          myLogger.e(e, stackTrace: s, header: "Couldn't set date");
+          ConversionService.logger
+              .e(e, stackTrace: s, header: "Couldn't set date");
         }
         continue;
       } else if (value is List) {
@@ -360,8 +377,8 @@ class ConversionService {
 
       return mapToObject<T>(body, type: type);
     } catch (e, s) {
-      myLogger.e(e,
-          stackTrace: s, header: "Couldn't convert request to object");
+      ConversionService.logger
+          .e(e, stackTrace: s, header: "Couldn't convert request to object");
       throw ConversionException("Couldn't convert request to object");
     }
   }
