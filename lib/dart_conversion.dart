@@ -19,8 +19,12 @@ class ConversionException extends FormatException {
   );
 }
 
+/// A service that provides methods for converting objects into many different formats.
 class ConversionService {
   static final MyLogger logger = MyLogger.init(enabled: true);
+
+  /// Creates a new instance of the ConversionService. Useful for implementing extensions. Otherwise you should use the static methods.
+  const ConversionService();
 
   ConversionService.disableLogging() {
     ConversionService.logger.enabled = true;
