@@ -19,11 +19,18 @@ class BoolTransformer extends Transformer<bool> {
     if (value is bool) {
       return value;
     } else if (value is num) {
+      if (value.toInt() > 1 || value.toInt() < 0) {
+        throw TransformerException(
+            "Value $value of type ${value.runtimeType} is not a valid boolean representation as it is not 1 or 0",
+            value);
+      }
       return value.toInt() == 1;
     } else if (value is String) {
       return value.toLowerCase() == 'true';
     }
-    return value;
+    throw TransformerException(
+        "Value $value of type ${value.runtimeType} cannot be transformed to an bool",
+        value);
   }
 }
 
@@ -37,7 +44,9 @@ class DoubleTransformer extends Transformer<double> {
     } else if (value is String) {
       return double.parse(value);
     }
-    return value;
+    throw TransformerException(
+        "Value $value of type ${value.runtimeType} cannot be transformed to an double",
+        value);
   }
 }
 
@@ -53,7 +62,9 @@ class IntTransformer extends Transformer<int> {
     } else if (value is String) {
       return int.parse(value);
     }
-    return value;
+    throw TransformerException(
+        "Value $value of type ${value.runtimeType} cannot be transformed to an int",
+        value);
   }
 }
 
@@ -77,7 +88,7 @@ class StringTransformer extends Transformer<String> {
     if (value is String) {
       return value;
     } else if (value is Map || value is List) {
-      return jsonDecode(value);
+      return jsonEncode(value);
     }
     return value.toString();
   }
@@ -86,10 +97,17 @@ class StringTransformer extends Transformer<String> {
 abstract class Transformer<TransformTo> {
   TransformTo transform(dynamic value) {
     final transformation = transformValue(value);
-    ConversionService.logger.i('Transformed value: $transformation',
+    ConversionService.logger.i(
+        'Transformed $value of type ${value.runtimeType} to $transformation of type ${transformation.runtimeType}',
         header: runtimeType.toString());
     return transformation;
   }
 
   TransformTo transformValue(dynamic value);
+}
+
+class TransformerException extends FormatException {
+  TransformerException(super.message, super.source);
+  @override
+  String toString() => message;
 }
