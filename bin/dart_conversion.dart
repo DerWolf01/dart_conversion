@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dart_conversion/dart_conversion.dart';
+import 'package:dart_conversion/dart_conversion.old.dart';
 
 void main() async {
   final json = ConversionService.encodeJSON(DaeHolder());

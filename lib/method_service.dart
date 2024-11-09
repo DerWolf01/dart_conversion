@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:mirrors';
 
-import 'package:dart_conversion/dart_conversion.dart';
+import 'package:dart_conversion/dart_conversion.old.dart';
 import 'package:dart_conversion/my_logger.dart';
 
 MethodService get methodService => MethodService();

@@ -3,6 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   test("\"true\" -> bool", () {
+    printOnFailure("Didn't pass");
     final value = "true";
     final transformer = BoolTransformer();
     final result = transformer.transform(value);
