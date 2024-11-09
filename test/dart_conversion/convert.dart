@@ -5,14 +5,25 @@ import 'package:test/test.dart';
 
 import 'convert.reflectable.dart';
 
+abstract class TestUserBase {
+  const TestUserBase({required this.mappedFriends});
+  final Map<String, TestUser> mappedFriends;
+}
+
 @convertable
-class TestUser {
+class TestUser extends TestUserBase {
   final String name;
 
   final int id;
   final String lastName;
+  final List<TestUser> friends;
 
-  TestUser({required this.id, required this.lastName, required this.name});
+  const TestUser(
+      {required this.id,
+      required this.lastName,
+      required this.name,
+      required this.friends,
+      required super.mappedFriends});
 }
 
 void main() {
@@ -22,9 +33,45 @@ void main() {
     test(
       "TestUser --> Map<String, dynamic>",
       () {
-        dartConversion.convert(
-            TestUser(id: 0, lastName: "lastname", name: "name"),
-            to: Map<String, dynamic>);
+        final testUser = TestUser(
+            id: 0,
+            lastName: "lastname",
+            name: "name",
+            friends: [],
+            mappedFriends: {});
+
+        final testUser2 = TestUser(
+            id: 0,
+            lastName: "lastname",
+            name: "name",
+            friends: [testUser],
+            mappedFriends: {"sad": testUser});
+
+        final map = dartConversion.convert(testUser2, to: Map<String, dynamic>);
+
+        expect(map, {
+          'name': 'name',
+          'id': 0,
+          'lastName': 'lastname',
+          'friends': [
+            {
+              'name': 'name',
+              'id': 0,
+              'lastName': 'lastname',
+              'friends': [],
+              'mappedFriends': {}
+            }
+          ],
+          'mappedFriends': {
+            'sad': {
+              'name': 'name',
+              'id': 0,
+              'lastName': 'lastname',
+              'friends': [],
+              'mappedFriends': {}
+            }
+          }
+        });
       },
     );
   });
