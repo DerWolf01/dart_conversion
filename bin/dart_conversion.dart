@@ -14,8 +14,7 @@ class TestUser {
 
 void main() async {
   initializeReflectable();
-  print((convertable.reflectType(TestUser) as ClassMirror)
-      .instanceMemberDeclarationVariables);
+  print((convertable.reflectType(TestUser) as ClassMirror).variables);
 
   return;
 }

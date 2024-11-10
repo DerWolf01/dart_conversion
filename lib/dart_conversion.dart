@@ -1,4 +1,6 @@
 import 'package:dart_conversion/class_mirror_extension.dart';
+import 'package:dart_conversion/constructor/constructor.dart';
+import 'package:dart_conversion/constructor/constructor_service.dart';
 import 'package:dart_conversion/convertable.dart';
 import 'package:dart_conversion/exception.dart';
 import 'package:dart_conversion/instance_mirror_extension.dart';
@@ -15,6 +17,8 @@ class DartConversion {
 
   factory DartConversion() => _instance ??= DartConversion._();
 
+  /// This method aims to convert different type of objects or collections and also primtive datatypes to a chosen representation provided to the method head
+  /// 
   To convert<To>(dynamic value, {Type? to}) {
     final transformer = transformers[to ?? To];
     if (transformer == null) {
@@ -51,7 +55,7 @@ class DartConversion {
     try {
       final reflection = convertable.reflect(object);
 
-      return reflection.instanceMemberDeclarationVariables.map(
+      return reflection.variables.map(
         (key, value) {
           final reflectedValue = reflection.invokeGetter(key);
           late final dynamic convertedValue;
@@ -98,11 +102,12 @@ class DartConversion {
     }
   }
 
-  T mapToObject<T>(Map<String, dynamic> map, {Type? type}) {
+  T mapToObject<T>(Map<String, dynamic> values,
+      {Type? type, String constructorName = ""}) {
     Type finalType = type ?? T;
     if (finalType == dynamic) {
       throw DartConversionException(
-          "Provide a type as generic type or method parameter in order to convert $map to an model object");
+          "Provide a type as generic type or method parameter in order to convert $values to an model object");
     }
     if (!convertable.canReflect(finalType)) {
       throw DartConversionException(
@@ -115,6 +120,12 @@ class DartConversion {
           "The type $finalType is not a class that acts as an model but rather a type.");
     }
 
-    
+    final constructorArguments = ConstructorService()
+        .constructConstructorArguments(
+            classMirror: reflection as ClassMirror, values: values, name: "");
+    return ConstructorService().callConstructorUsingClassMirror<T>(
+        classMirror: reflection,
+        constructorArguments: constructorArguments,
+        name: constructorName);
   }
 }

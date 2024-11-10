@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dart_conversion/dart_conversion.old.dart';
 import 'package:dart_conversion/my_logger.dart';
 
+/// A list of transformers for List instances
 const listTransformer = <Type, ListTransformer>{
   List<int>: ListTransformer<int>(IntTransformer()),
   List<String>: ListTransformer<String>(StringTransformer()),
@@ -10,6 +11,7 @@ const listTransformer = <Type, ListTransformer>{
   List<bool>: ListTransformer<bool>(BoolTransformer()),
 };
 
+/// A list of constant map transformers which aims to provide transformation ability from different Key and Value types to a specific and different one
 const mapTransformers = <Type, MapTransformer>{
   Map<String, dynamic>: MapTransformer<String, dynamic>(),
   Map<String, String>: MapTransformer<String, String>(),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dart_conversion/class_mirror_extension.dart';
 import 'package:dart_conversion/constructor/constructor.dart';
 import 'package:dart_conversion/constructor/constructor_arguments.dart';
@@ -14,6 +16,7 @@ class ConstructorService {
 
   factory ConstructorService() => _instance ??= ConstructorService._();
 
+  /// Invokes a constructor of an class using it's class mirror and constructor name and optional constructor arguments
   T callConstructorUsingClassMirror<T>(
       {required ClassMirror classMirror,
       String name = "",
@@ -21,20 +24,29 @@ class ConstructorService {
     final finalConstructorArguments =
         constructorArguments ?? ConstructorArguments();
 
-    myLogger.d(
+    // TODO: nest ConstructorParameters instance in ConstructorArguments
+    myLogger.i(
         "Calling ${classMirror.simpleName}${name.isEmpty ? "(${finalConstructorArguments.positionedArguments.map(
-              (e) => "${e.type.reflectedType} ${e.simpleName} ",
+              (e) => convertable.reflect(e),
+            ).map(
+              (e) => "${e.type.reflectedType} ${e.type.simpleName} ",
             ).join(", ")}, {${finalConstructorArguments.namedArguments.values.map(
-              (e) => "${e.type.reflectedType} ${e.simpleName} ",
+              (e) => convertable.reflect(e),
+            ).map(
+              (e) => "${e.type.reflectedType} ${e.type.simpleName} ",
             ).join(", ")}})" : ".$name()"}",
         header: "ConstructorService().callConstructorUsingClassMirror");
     final instance = classMirror.newInstance(
         name,
         finalConstructorArguments.positionedArguments,
         finalConstructorArguments.namedArguments);
-    myLogger.d("Successfully instanciated ${classMirror.simpleName}: $instance",
+    myLogger.i("Successfully instanciated ${classMirror.simpleName}: $instance",
         header: "ConstructorService().callConstructorUsingClassMirror");
+
+    /// if there are dangling fields that were provided in the map that simultaniously exist as attributes in the class, the library will try to invoke the setters of these fields successfully using these values expecting them to be marked as late.
     if (constructorArguments?.nonConstructorFields.isNotEmpty == true) {
+      myLogger.w("Non constructor values aren't empty",
+          header: "ConstructorService().callConstructorUsingClassMirror");
       final instanceReflection = convertable.reflect(instance);
       for (final field in constructorArguments!.nonConstructorFields.entries) {
         try {
@@ -45,6 +57,8 @@ class ConstructorService {
                 "No field with name of \"${field.key}\" was found in class ${classMirror.simpleName} ",
                 StackTrace.current);
           }
+          myLogger.w("Found field ${field.key} and attempting setter invoking.",
+              header: "ConstructorService().callConstructorUsingClassMirror");
           instanceReflection.invokeSetter(
               field.key,
               dartConversion.convert(field.value,
@@ -64,11 +78,11 @@ $e""",
     return instance as T;
   }
 
-  constructConstructorArguments(
+  ConstructorArguments constructConstructorArguments(
       {required ClassMirror classMirror,
       String name = "",
-      Map<String, dynamic> map = const {}}) {
-    myLogger.d(
+      Map<String, dynamic> values = const {}}) {
+    myLogger.i(
         "Constructing constructor arguments for ${classMirror.simpleName}${name.isEmpty ? "" : ".$name"}",
         header: "ConstructorService.constructConstructorArguments");
     final constructorMethodMirror = classMirror.findConstructor(name);
@@ -80,8 +94,8 @@ $e""",
     final constructor = Constructor(constructorMethodMirror);
     final ConstructorParameters constructorParameters =
         constructor.constructorParameters;
-    myLogger.d(
-        "Found cosntructor method mirror for ${classMirror.simpleName}${name.isEmpty ? "(${constructorParameters.positionedParameters.map(
+    myLogger.i(
+        "Found constructor method mirror for ${classMirror.simpleName}${name.isEmpty ? "(${constructorParameters.positionedParameters.map(
               (e) => "${e.type.reflectedType} ${e.simpleName} ",
             ).join(", ")}, {${constructorParameters.namedParameters.values.map(
               (e) => "${e.type.reflectedType} ${e.simpleName} ",
@@ -89,7 +103,7 @@ $e""",
         header: "ConstructorService.constructConstructorArguments");
     final ConstructorArguments constructorArguments = ConstructorArguments();
 
-    final nonConstructorAttributes = Map.fromEntries(map.entries.where(
+    final nonConstructorAttributes = Map.fromEntries(values.entries.where(
       (rawArgument) =>
           !constructorParameters.namedParameters.containsKey(rawArgument.key) &&
           !constructorParameters.positionedParameters.any(
@@ -108,22 +122,26 @@ dangling fields--> ${nonConstructorAttributes..removeWhere(
             )}
 If they aren't marked as late the library will trow an exception.
 """, header: "ConstructorService.constructConstructorArguments");
+
+      constructorArguments.nonConstructorFields.addEntries(
+          (nonConstructorAttributes.entries.where(
+              (element) => attributesWithSameNames.containsKey(element.key))));
     }
 
     for (final positionedArgument
         in constructorParameters.positionedParameters) {
-      final argument = map[positionedArgument.simpleName];
+      final argument = values[positionedArgument.simpleName];
 
       if (argument == null) {
         throw ConstructorParameterException(
-            "No argument found for positioned constructor parameter ”${positionedArgument.simpleName}” found in provided map $map",
+            "No argument found for positioned constructor parameter ”${positionedArgument.simpleName}” found in provided map $values",
             positionedArgument.simpleName);
       }
 
-      myLogger.d(
+      myLogger.i(
           "Found positioned constructor argument with name \"${positionedArgument.simpleName}” of value $argument");
 
-      myLogger.d(
+      myLogger.i(
           "Attempting to convert $argument of type ${argument.runtimeType} to positioned parameter type ${positionedArgument.type.reflectedType}");
 
       constructorArguments.positionedArguments.add(dartConversion
@@ -134,22 +152,23 @@ If they aren't marked as late the library will trow an exception.
         in constructorParameters.namedParameters.entries) {
       final namedArgument = namedArgumentEntry.value;
       final name = namedArgumentEntry.key;
-      final argument = map[name];
+      final argument = values[name];
 
       if (argument == null) {
         throw ConstructorParameterException(
-            "No argument for positioned contructor parameter ”${namedArgument.simpleName}” found in provided map $map",
+            "No argument for positioned contructor parameter ”${namedArgument.simpleName}” found in provided map $values",
             namedArgument.simpleName);
       }
-      myLogger.d(
+      myLogger.i(
           "Found named constructor argument with name \"${namedArgument.simpleName}” of value $argument",
           header: "ConstructorService.constructConstructorArguments");
 
-      myLogger.d(
+      myLogger.i(
           "Attempting to convert $argument of type ${argument.runtimeType} to named parameter type ${namedArgument.type.reflectedType}",
           header: "ConstructorService.constructConstructorArguments");
       constructorArguments.namedArguments[Symbol(name)] = dartConversion
           .convert(argument, to: namedArgument.type.reflectedType);
     }
+    return constructorArguments;
   }
 }

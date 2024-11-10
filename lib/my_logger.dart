@@ -8,9 +8,9 @@ class MyLogger {
   final Logger internalLogger = Logger(
       filter: ProductionFilter(),
       printer: PrettyPrinter(
-          methodCount: 2,
+          methodCount: 0,
           // number of method calls to be displayed
-          errorMethodCount: 8,
+          errorMethodCount: 29,
           stackTraceBeginIndex: 1,
           levelEmojis: {
             Level.info: 'ℹ️',
@@ -54,7 +54,7 @@ class MyLogger {
 
   void d(dynamic message, {Object? header}) {
     if (!enabled) return;
-    internalLogger.d(message, error: header);
+    internalLogger.d(message, error: header, stackTrace: null);
   }
 
   e(dynamic message, {Object? header, StackTrace? stackTrace}) {

@@ -1,7 +1,9 @@
 import 'package:reflectable/reflectable.dart';
 
+/// This extension is used to define some extra methods and getters to simplify the work with class mirrors
 extension ClassMirrorExtension on ClassMirror {
-  Map<String, VariableMirror> get instanceMemberDeclarationVariables {
+  /// This method extracts the attributes of the class
+  Map<String, VariableMirror> get variables {
     final Map<String, VariableMirror> declarations = {};
     print(this.declarations);
     for (final declaration in this.declarations.entries) {
@@ -11,24 +13,19 @@ extension ClassMirrorExtension on ClassMirror {
     }
 
     if (superclass != null) {
-      declarations.addAll(superclass!.instanceMemberDeclarationVariables);
+      declarations.addAll(superclass!.variables);
     }
 
     return declarations;
   }
 
-  Map<String, VariableMirror> findFields(List<String> names) =>
-      Map.fromEntries(instanceMemberDeclarationVariables.entries
-          .where((element) => names.contains(element.key)));
+  /// Finds class attributes using a list of names to be searched for
+  Map<String, VariableMirror> findFields(List<String> names) => Map.fromEntries(
+      variables.entries.where((element) => names.contains(element.key)));
 
-  VariableMirror? findField(List<String> names) =>
-      instanceMemberDeclarationVariables.entries
-          .where((element) => names.contains(element.key))
-          .firstOrNull
-          ?.value;
-}
-
-extension MapEntryIterableExtension on Iterable<MapEntry> {
-  Map toMap<K, V>() =>
-      Map<K, V>.fromEntries(cast<MapEntry<K, V>>()).cast<K, V>();
+  /// Finds 1 class attribute using a name to be searched for
+  VariableMirror? findField(List<String> names) => variables.entries
+      .where((element) => names.contains(element.key))
+      .firstOrNull
+      ?.value;
 }
