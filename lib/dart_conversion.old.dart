@@ -10,7 +10,7 @@ import 'package:dart_conversion/list_of.dart';
 import 'package:dart_conversion/my_logger.dart';
 
 export "dart_conversion.old.dart";
-export "./method_service.dart";
+export "method_service.old.dart";
 export 'list_of.dart';
 
 class ConversionException extends FormatException {

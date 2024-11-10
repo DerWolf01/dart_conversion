@@ -1,8 +1,11 @@
+import 'package:dart_conversion/class_mirror_extension.dart';
 import 'package:dart_conversion/convertable.dart';
 import 'package:dart_conversion/exception.dart';
 import 'package:dart_conversion/instance_mirror_extension.dart';
 import 'package:dart_conversion/my_logger.dart';
 import 'package:dart_conversion/transformer/transformer.dart';
+import 'package:logger/logger.dart';
+import 'package:reflectable/reflectable.dart';
 
 DartConversion get dartConversion => DartConversion();
 
@@ -39,59 +42,79 @@ class DartConversion {
 
     return res;
   }
-}
 
-Map<String, dynamic> objectToMap(Object object) {
-  try {
+  Map<String, dynamic> objectToMap(Object object) {
     if (!convertable.canReflect(object)) {
       throw DartConversionException(
           "Object $object of Type ${object.runtimeType} is not anotated with @convertable");
     }
+    try {
+      final reflection = convertable.reflect(object);
 
-    final reflection = convertable.reflect(object);
+      return reflection.instanceMemberDeclarationVariables.map(
+        (key, value) {
+          final reflectedValue = reflection.invokeGetter(key);
+          late final dynamic convertedValue;
+          final transformer = transformers[reflectedValue.runtimeType];
+          try {
+            myLogger.d(
+                "Key Value pair --> $key:$value. Trasnformer: $transformer. ",
+                header: "DartConversion.objectToMap");
 
-    return reflection.instanceMemberDeclarationVariables.map(
-      (key, value) {
-        final reflectedValue = reflection.invokeGetter(key);
-        late final dynamic convertedValue;
-        final transformer = transformers[reflectedValue.runtimeType];
-        try {
-          myLogger.d(
-              "Key Value pair --> $key:$value. Trasnformer: $transformer. ",
-              header: "DartConversion.objectToMap");
-
-          if (transformer != null) {
-            convertedValue = reflectedValue;
-          } else if (reflectedValue is List) {
-            convertedValue = reflectedValue
-                .map((e) => dartConversion.convert<Map<String, dynamic>>(
-                      e,
-                    ))
-                .toList();
-          } else if (reflectedValue is Map) {
-            convertedValue = reflectedValue.map((key, value) => MapEntry(
-                key,
-                dartConversion.convert<Map<String, dynamic>>(
-                  value,
-                )));
-          } else {
-            convertedValue = dartConversion.convert<Map<String, dynamic>>(
-              reflectedValue,
-            );
+            if (transformer != null) {
+              convertedValue = reflectedValue;
+            } else if (reflectedValue is List) {
+              convertedValue = reflectedValue
+                  .map((e) => dartConversion.convert<Map<String, dynamic>>(
+                        e,
+                      ))
+                  .toList();
+            } else if (reflectedValue is Map) {
+              convertedValue = reflectedValue.map((key, value) => MapEntry(
+                  key,
+                  dartConversion.convert<Map<String, dynamic>>(
+                    value,
+                  )));
+            } else {
+              convertedValue = dartConversion.convert<Map<String, dynamic>>(
+                reflectedValue,
+              );
+            }
+            myLogger.d("Conveted value: $convertedValue",
+                header: "DartConversion.objectToMap");
+            return MapEntry(key, convertedValue);
+          } catch (e, s) {
+            myLogger.e(e, stackTrace: s, header: "DartConversion.objectToMap");
           }
-          myLogger.d("Conveted value: $convertedValue",
-              header: "DartConversion.objectToMap");
-          return MapEntry(key, convertedValue);
-        } catch (e, s) {
-          myLogger.e(e, stackTrace: s, header: "DartConversion.objectToMap");
-        }
-        throw DartConversionException(
-            "Couldn't find appropiat format for value of $reflectedValue of type ${reflectedValue.runtimeType}");
-      },
-    );
-  } catch (e, s) {
-    myLogger.e(e, stackTrace: s, header: "DartConversion.objectToMap($object)");
+          throw DartConversionException(
+              "Couldn't find appropiat format for value of $reflectedValue of type ${reflectedValue.runtimeType}");
+        },
+      );
+    } catch (e, s) {
+      myLogger.e(e,
+          stackTrace: s, header: "DartConversion.objectToMap($object)");
 
-    throw DartConversionException("Couldn't convert $object to Map");
+      throw DartConversionException("Couldn't convert $object to Map");
+    }
+  }
+
+  T mapToObject<T>(Map<String, dynamic> map, {Type? type}) {
+    Type finalType = type ?? T;
+    if (finalType == dynamic) {
+      throw DartConversionException(
+          "Provide a type as generic type or method parameter in order to convert $map to an model object");
+    }
+    if (!convertable.canReflect(finalType)) {
+      throw DartConversionException(
+          "Type $finalType is not anotated with @convertable. Anotate it in order to assure compatibilty with this library");
+    }
+    final reflection = convertable.reflectType(finalType);
+
+    if (type is! ClassMirror) {
+      throw DartConversionException(
+          "The type $finalType is not a class that acts as an model but rather a type.");
+    }
+
+    
   }
 }
