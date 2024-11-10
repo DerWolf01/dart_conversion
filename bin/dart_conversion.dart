@@ -1,14 +1,23 @@
 import 'dart:io';
 
-import 'package:dart_conversion/dart_conversion.old.dart';
+import 'package:dart_conversion/class_mirror_extension.dart';
+import 'package:dart_conversion/convertable.dart';
+
+import 'package:reflectable/reflectable.dart';
+import './dart_conversion.reflectable.dart';
+
+@convertable
+class TestUser {
+  const TestUser(this.name);
+  final String name;
+}
 
 void main() async {
-  final json = ConversionService.encodeJSON(DaeHolder());
+  initializeReflectable();
+  print((convertable.reflectType(TestUser) as ClassMirror)
+      .instanceMemberDeclarationVariables);
 
-  print(json);
-
-  final object = ConversionService.jsonToObject<DaeHolder>(json);
-  print(object);
+  return;
 }
 
 class DaeHolder {
