@@ -1,12 +1,10 @@
-import 'package:dart_conversion/class_mirror_extension.dart';
-import 'package:dart_conversion/constructor/constructor.dart';
 import 'package:dart_conversion/constructor/constructor_service.dart';
 import 'package:dart_conversion/convertable.dart';
 import 'package:dart_conversion/exception.dart';
 import 'package:dart_conversion/instance_mirror_extension.dart';
+import 'package:dart_conversion/collection_of.dart';
 import 'package:dart_conversion/my_logger.dart';
 import 'package:dart_conversion/transformer/transformer.dart';
-import 'package:logger/logger.dart';
 import 'package:reflectable/reflectable.dart';
 
 DartConversion get dartConversion => DartConversion();
@@ -18,22 +16,78 @@ class DartConversion {
   factory DartConversion() => _instance ??= DartConversion._();
 
   /// This method aims to convert different type of objects or collections and also primtive datatypes to a chosen representation provided to the method head
-  /// 
-  To convert<To>(dynamic value, {Type? to}) {
-    final transformer = transformers[to ?? To];
-    if (transformer == null) {
-      throw DartConversionException(
-          "No transformer for Type ${to ?? To} found.");
-    }
+  To convert<To>(dynamic value, {Type? to, CollectionOf? collectionOf}) {
     late final To res;
-    if (transformers[value.runtimeType] != null) {
-      myLogger.d(
-          "Converting Value of $value of type ${value.runtimeType} to ${to ?? To}",
-          header: "DartConversion");
-      res = transformer.transform(value);
+    final finalTo = to ?? To;
+    if (finalTo == dynamic) {
+      throw DartConversionException(
+          "The value $value cannot be converted to dynamic. Provide a type using the generic type argument or method argument \"to\"");
+    }
+
+    final transformer = transformers[finalTo];
+    final preDefinedValueTransformer = transformers[value];
+
+    final valueTransformerIsPreDefined = preDefinedValueTransformer != null;
+
+    /// If there is an available transformer for the provided value then the value isn't a dynamic class or model but rather one of the predefined classes in dart.
+    if (valueTransformerIsPreDefined) {
+      /// If the transformer isn't null also the provided value will be transformed into one of the predefined objects that were referred to in the comment above.
+      if (transformer != null) {
+        myLogger.d(
+            "Converting Value of $value of type ${value.runtimeType} to $finalTo",
+            header: "DartConversion.convert");
+        res = transformer.transform(value);
+      } else if (finalTo.toString().startsWith("List")) {
+        if (value is! List) {
+          throw DartConversionException(
+              "The value provided $value was marked to be converted to an $finalTo but is not a List itsself");
+        }
+
+        if (collectionOf == null) {
+          throw DartConversionException(
+              "If the generic type arguments of the provided field with values $value are dynamically generated and not predefined it is required to be anotated with @CollectionOf(valueType: <Type>) in order to assure proper type conversion. This is due to an lack of ability to dynamically determine provided generic types in the dart programming language");
+        }
+        myLogger.i(
+            "Converting the map $value to a $finalTo using @CollectionOf(${collectionOf.valueType})",
+            header: "DartConversion.convert");
+
+        return value
+            .map(
+              (e) => mapToObject(e, type: collectionOf.valueType),
+            )
+            .toList() as To;
+      } else if (finalTo.toString().startsWith("Map")) {
+        if (value is! Map) {
+          throw DartConversionException(
+              "The value provided $value was marked to be converted to an $finalTo but is not a Map itsself");
+        }
+        if (collectionOf == null) {
+          throw DartConversionException(
+              "If the generic type arguments of the provided field with values $value are dynamically generated and not predefined it is required to be anotated with @CollectionOf(valueType: <Type>) in order to assure proper type conversion. This is due to an lack of ability to dynamically determine provided generic types in the dart programming language");
+        }
+
+        myLogger.i(
+            "Converting the map $value to a $finalTo using @CollectionOf(${collectionOf.valueType})",
+            header: "DartConversion.convert");
+        return value.map(
+          (key, entry) => MapEntry(
+              collectionOf.keyType != null
+                  ? convert(key, to: collectionOf.keyType)
+                  : key,
+              mapToObject(entry, type: collectionOf.valueType)),
+        ) as To;
+      } else {
+        myLogger.i("Converting the map $value to a $finalTo",
+            header: "DartConversion.convert");
+        return mapToObject(value, type: to);
+      }
     } else {
+      if (transformer == null) {
+        throw DartConversionException(
+            "No transformer for Type $finalTo found. ${value.runtimeType} $preDefinedValueTransformer");
+      }
       myLogger.d(
-          "Converting Object $value of type ${value.runtimeType} to ${to ?? To}",
+          "Converting Object $value of type ${value.runtimeType} to $finalTo",
           header: "DartConversion");
 
       final objectMap = objectToMap(value);
@@ -41,7 +95,7 @@ class DartConversion {
       res = transformer.transform(objectMap);
     }
     myLogger.i(
-        "Converted $value of type ${value.runtimeType} to $res of type ${to ?? To}",
+        "Converted $value of type ${value.runtimeType} to $res of type $finalTo",
         header: "DartConversion");
 
     return res;
@@ -104,28 +158,37 @@ class DartConversion {
 
   T mapToObject<T>(Map<String, dynamic> values,
       {Type? type, String constructorName = ""}) {
-    Type finalType = type ?? T;
-    if (finalType == dynamic) {
-      throw DartConversionException(
-          "Provide a type as generic type or method parameter in order to convert $values to an model object");
-    }
-    if (!convertable.canReflect(finalType)) {
-      throw DartConversionException(
-          "Type $finalType is not anotated with @convertable. Anotate it in order to assure compatibilty with this library");
-    }
-    final reflection = convertable.reflectType(finalType);
+    try {
+      Type finalType = type ?? T;
+      if (finalType == dynamic) {
+        throw DartConversionException(
+            "Provide a type as generic type or method parameter in order to convert $values to an model object");
+      }
+      if (!convertable.canReflect(finalType)) {
+        throw DartConversionException(
+            "Type $finalType is not anotated with @convertable. Anotate it in order to assure compatibilty with this library");
+      }
+      final reflection = convertable.reflectType(finalType);
 
-    if (type is! ClassMirror) {
-      throw DartConversionException(
-          "The type $finalType is not a class that acts as an model but rather a type.");
+      if (reflection is! ClassMirror) {
+        throw DartConversionException(
+            "The type $finalType is not a class that acts as an model but rather a type.");
+      }
+
+      final constructorArguments = ConstructorService()
+          .constructConstructorArguments(
+              classMirror: reflection, values: values, name: "");
+      return ConstructorService().callConstructorUsingClassMirror<T>(
+          classMirror: reflection,
+          constructorArguments: constructorArguments,
+          name: constructorName);
+    } on DartConversionException catch (e, s) {
+      myLogger.e(e.toString(),
+          header: "DartConversion.mapToObject", stackTrace: s);
+    } catch (e, s) {
+      myLogger.e(e, stackTrace: s);
     }
 
-    final constructorArguments = ConstructorService()
-        .constructConstructorArguments(
-            classMirror: reflection as ClassMirror, values: values, name: "");
-    return ConstructorService().callConstructorUsingClassMirror<T>(
-        classMirror: reflection,
-        constructorArguments: constructorArguments,
-        name: constructorName);
+    throw DartConversionException("Couldn't convert $values to ${type ?? T}");
   }
 }

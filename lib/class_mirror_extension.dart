@@ -1,3 +1,5 @@
+import 'package:dart_conversion/collection_of.dart';
+import 'package:dart_conversion/my_logger.dart';
 import 'package:reflectable/reflectable.dart';
 
 /// This extension is used to define some extra methods and getters to simplify the work with class mirrors
@@ -24,8 +26,49 @@ extension ClassMirrorExtension on ClassMirror {
       variables.entries.where((element) => names.contains(element.key)));
 
   /// Finds 1 class attribute using a name to be searched for
-  VariableMirror? findField(List<String> names) => variables.entries
-      .where((element) => names.contains(element.key))
+  VariableMirror? findField(String name) => variables.entries
+      .where((element) => name.contains(element.key))
       .firstOrNull
       ?.value;
+
+  List<TypeMirror>? findTypeArguments(String fieldName) =>
+      findField(fieldName)?.type.typeArguments;
+
+  TypeMirror? findTypeArgument(String fieldName, int position) =>
+      findField(fieldName)?.type.typeArguments.elementAtOrNull(position);
+
+  CollectionOf? getCollectionOfUsingName(
+    String name,
+  ) {
+    try {
+      final field = findField(name);
+      if (field == null) {
+        throw ClassMirrorExtensionException(
+            "No field with name ”$name\" was found in class $simpleName");
+      }
+      final typeArguments = field.type.typeArguments;
+
+      if (typeArguments.isEmpty) {
+        return null;
+      }
+      if (field.type.reflectedType.toString().startsWith("Map") == true) {
+        return CollectionOf(
+            keyType: typeArguments.firstOrNull?.reflectedType,
+            valueType: typeArguments[1].reflectedType);
+      }
+
+      return CollectionOf(valueType: typeArguments.first.reflectedType);
+    } catch (e) {
+      myLogger.d(e, header: "ClassMirrorExtension.getCollectionOfUsingName");
+    }
+    return null;
+  }
+}
+
+class ClassMirrorExtensionException implements Exception {
+  ClassMirrorExtensionException(this.message);
+
+  final String message;
+  @override
+  String toString() => "$runtimeType($message)";
 }

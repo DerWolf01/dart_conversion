@@ -8,7 +8,7 @@ class MyLogger {
   final Logger internalLogger = Logger(
       filter: ProductionFilter(),
       printer: PrettyPrinter(
-          methodCount: 0,
+          methodCount: 29,
           // number of method calls to be displayed
           errorMethodCount: 29,
           stackTraceBeginIndex: 1,

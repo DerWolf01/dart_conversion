@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dart_conversion/class_mirror_extension.dart';
 import 'package:dart_conversion/constructor/constructor.dart';
 import 'package:dart_conversion/constructor/constructor_arguments.dart';
@@ -7,6 +5,7 @@ import 'package:dart_conversion/constructor/constructor_extension.dart';
 import 'package:dart_conversion/constructor/exception.dart';
 import 'package:dart_conversion/convertable.dart';
 import 'package:dart_conversion/dart_conversion.dart';
+import 'package:dart_conversion/collection_of.dart';
 import 'package:dart_conversion/my_logger.dart';
 import 'package:reflectable/reflectable.dart';
 
@@ -25,17 +24,17 @@ class ConstructorService {
         constructorArguments ?? ConstructorArguments();
 
     // TODO: nest ConstructorParameters instance in ConstructorArguments
-    myLogger.i(
-        "Calling ${classMirror.simpleName}${name.isEmpty ? "(${finalConstructorArguments.positionedArguments.map(
-              (e) => convertable.reflect(e),
-            ).map(
-              (e) => "${e.type.reflectedType} ${e.type.simpleName} ",
-            ).join(", ")}, {${finalConstructorArguments.namedArguments.values.map(
-              (e) => convertable.reflect(e),
-            ).map(
-              (e) => "${e.type.reflectedType} ${e.type.simpleName} ",
-            ).join(", ")}})" : ".$name()"}",
-        header: "ConstructorService().callConstructorUsingClassMirror");
+    // myLogger.i(
+    //     "Calling ${classMirror.simpleName}${name.isEmpty ? "(${finalConstructorArguments.positionedArguments.map(
+    //           (e) => convertable.reflect(e),
+    //         ).map(
+    //           (e) => "${e.type.reflectedType} ${e.type.simpleName} ",
+    //         ).join(", ")}, {${finalConstructorArguments.namedArguments.values.map(
+    //           (e) => convertable.reflect(e),
+    //         ).map(
+    //           (e) => "${e.type.reflectedType} ${e.type.simpleName} ",
+    //         ).join(", ")}})" : ".$name()"}",
+    //     header: "ConstructorService().callConstructorUsingClassMirror");
     final instance = classMirror.newInstance(
         name,
         finalConstructorArguments.positionedArguments,
@@ -50,7 +49,7 @@ class ConstructorService {
       final instanceReflection = convertable.reflect(instance);
       for (final field in constructorArguments!.nonConstructorFields.entries) {
         try {
-          final declaration = classMirror.findField([field.key]);
+          final declaration = classMirror.findField(field.key);
 
           if (declaration == null) {
             throw ConstructorServiceException(
@@ -62,7 +61,12 @@ class ConstructorService {
           instanceReflection.invokeSetter(
               field.key,
               dartConversion.convert(field.value,
-                  to: declaration.reflectedType));
+                  to: declaration.type.originalDeclaration.reflectedType,
+                  collectionOf:
+                      classMirror.getCollectionOfUsingName(field.key) ??
+                          declaration.type.metadata
+                              .whereType<CollectionOf>()
+                              .firstOrNull));
         } catch (e, s) {
           myLogger.e("""
 Error: Couldnt't invoke setter for ${field.key}. Make sure the field is marked as late. 
@@ -144,8 +148,14 @@ If they aren't marked as late the library will trow an exception.
       myLogger.i(
           "Attempting to convert $argument of type ${argument.runtimeType} to positioned parameter type ${positionedArgument.type.reflectedType}");
 
-      constructorArguments.positionedArguments.add(dartConversion
-          .convert(argument, to: positionedArgument.type.reflectedType));
+      constructorArguments.positionedArguments.add(dartConversion.convert(
+          argument,
+          to: positionedArgument.type.originalDeclaration.reflectedType,
+          collectionOf: classMirror
+                  .getCollectionOfUsingName(positionedArgument.simpleName) ??
+              positionedArgument.type.metadata
+                  .whereType<CollectionOf>()
+                  .firstOrNull));
     }
 
     for (final namedArgumentEntry
@@ -166,8 +176,14 @@ If they aren't marked as late the library will trow an exception.
       myLogger.i(
           "Attempting to convert $argument of type ${argument.runtimeType} to named parameter type ${namedArgument.type.reflectedType}",
           header: "ConstructorService.constructConstructorArguments");
-      constructorArguments.namedArguments[Symbol(name)] = dartConversion
-          .convert(argument, to: namedArgument.type.reflectedType);
+      constructorArguments.namedArguments[Symbol(name)] =
+          dartConversion.convert(argument,
+              to: namedArgument.reflectedType,
+              collectionOf: classMirror
+                      .getCollectionOfUsingName(namedArgument.simpleName) ??
+                  namedArgument.type.metadata
+                      .whereType<CollectionOf>()
+                      .firstOrNull);
     }
     return constructorArguments;
   }

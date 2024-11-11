@@ -1,12 +1,17 @@
 import 'package:dart_conversion/convertable.dart';
 import 'package:dart_conversion/dart_conversion.dart';
+import 'package:dart_conversion/dart_conversion.old.dart';
 import 'package:dart_conversion/my_logger.dart';
 import 'package:test/test.dart';
 
-import 'convert.reflectable.dart';
+import 'dart_conversion_test.reflectable.dart';
 
 abstract class TestUserBase {
-  const TestUserBase({required this.mappedFriends});
+  const TestUserBase(
+      {@CollectionOf(valueType: TestUser, keyType: String)
+      required this.mappedFriends});
+
+  @CollectionOf(valueType: TestUser, keyType: String)
   final Map<String, TestUser> mappedFriends;
 }
 
@@ -16,13 +21,14 @@ class TestUser extends TestUserBase {
 
   final int id;
   final String lastName;
+  @CollectionOf(valueType: TestUser)
   final List<TestUser> friends;
 
   const TestUser(
       {required this.id,
       required this.lastName,
       required this.name,
-      required this.friends,
+      @CollectionOf(valueType: TestUser) required this.friends,
       required super.mappedFriends});
 }
 
@@ -31,7 +37,7 @@ void main() {
   group("DartConversion", () {
     MyLogger.init(enabled: true);
     test(
-      "TestUser --> Map<String, dynamic>",
+      "objectToMap",
       () {
         final testUser = TestUser(
             id: 0,
@@ -74,5 +80,36 @@ void main() {
         });
       },
     );
+
+    test("mapToObject<dynamic>(type: TestUser)", () {
+      final testUser = TestUser(
+          id: 0,
+          lastName: "lastname",
+          name: "name",
+          friends: [],
+          mappedFriends: {});
+
+      final testUserMap = dartConversion.objectToMap(testUser);
+
+      final reconstructedTestUser =
+          dartConversion.mapToObject(testUserMap, type: TestUser);
+
+      expect(reconstructedTestUser, isA<TestUser>());
+    });
+    test("mapToObject<T>(type: dynamic)", () {
+      final testUser = TestUser(
+          id: 0,
+          lastName: "lastname",
+          name: "name",
+          friends: [],
+          mappedFriends: {});
+
+      final testUserMap = dartConversion.objectToMap(testUser);
+
+      final reconstructedTestUser =
+          dartConversion.mapToObject<TestUser>(testUserMap);
+
+      expect(reconstructedTestUser, isA<TestUser>());
+    });
   });
 }

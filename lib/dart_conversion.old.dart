@@ -6,12 +6,12 @@ import 'dart:io';
 import 'dart:mirrors';
 import 'dart:typed_data';
 
-import 'package:dart_conversion/list_of.dart';
+import 'package:dart_conversion/collection_of.dart';
 import 'package:dart_conversion/my_logger.dart';
 
 export "dart_conversion.old.dart";
 export "method_service.old.dart";
-export 'list_of.dart';
+export 'collection_of.dart';
 
 class ConversionException extends FormatException {
   ConversionException(
@@ -297,14 +297,14 @@ class ConversionService {
         final listTypeArgument =
             dec.type.typeArguments.firstOrNull?.reflectedType;
         final listOfAnotation =
-            dec.metadata.where((e) => e.reflectee is ListOf).firstOrNull;
+            dec.metadata.where((e) => e.reflectee is CollectionOf).firstOrNull;
         if (listOfAnotation == null) {
           throw Exception(
-              "Field ${MirrorSystem.getName(key)} of type List<$listTypeArgument> in class ${dec.type.reflectedType} has to be anotated with @ListOf(type) to ensure conversion");
+              "Field ${MirrorSystem.getName(key)} of type List<$listTypeArgument> in class ${dec.type.reflectedType} has to be anotated with @CollectionOf(type) to ensure conversion");
         }
         if (listTypeArgument != dynamic) {
           throw Exception(
-              "Field ${MirrorSystem.getName(key)} of type List<$listTypeArgument> in class ${dec.type.reflectedType} should have a type argument of dynamic and should be anotated with @ListOf(type) to ensure conversion");
+              "Field ${MirrorSystem.getName(key)} of type List<$listTypeArgument> in class ${dec.type.reflectedType} should have a type argument of dynamic and should be anotated with @CollectionOf(type) to ensure conversion");
         }
 
         final listEntries = value
