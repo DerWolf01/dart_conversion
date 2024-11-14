@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dart_conversion/transformer/transformer.dart';
+import '../../lib/src/transformer/transformer.dart';
 import 'package:test/test.dart';
 
 void main() {

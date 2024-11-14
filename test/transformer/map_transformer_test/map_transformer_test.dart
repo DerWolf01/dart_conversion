@@ -1,5 +1,5 @@
-import 'package:dart_conversion/my_logger.dart';
-import 'package:dart_conversion/transformer/transformer.dart';
+import '../../../lib/src/my_logger.dart';
+import '../../../lib/src/transformer/transformer.dart';
 import 'package:test/test.dart';
 
 void main() {

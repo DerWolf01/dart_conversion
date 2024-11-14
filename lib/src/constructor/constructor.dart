@@ -1,4 +1,4 @@
-import 'package:dart_conversion/constructor/constructor_arguments.dart';
+import 'constructor_arguments.dart';
 import 'package:reflectable/reflectable.dart';
 
 class Constructor {

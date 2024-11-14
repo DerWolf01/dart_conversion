@@ -1,5 +1,5 @@
-import 'package:dart_conversion/collection_of.dart';
-import 'package:dart_conversion/my_logger.dart';
+import 'collection_of.dart';
+import 'my_logger.dart';
 import 'package:reflectable/reflectable.dart';
 
 /// This extension is used to define some extra methods and getters to simplify the work with class mirrors

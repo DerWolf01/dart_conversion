@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:dart_conversion/class_mirror_extension.dart';
-import 'package:dart_conversion/convertable.dart';
+import '../lib/src/class_mirror_extension.dart';
+import '../lib/src/convertable.dart';
 import 'dart:core';
 import 'package:reflectable/reflectable.dart';
 import './dart_conversion.reflectable.dart';

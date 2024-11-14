@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:dart_conversion/constructor/constructor_service.dart';
-import 'package:dart_conversion/convertable.dart';
-import 'package:dart_conversion/my_logger.dart';
+import '../../../../lib/src/constructor/constructor_service.dart';
+import '../../../../lib/src/convertable.dart';
+import '../../../../lib/src/my_logger.dart';
 import 'package:reflectable/reflectable.dart';
 import 'package:test/test.dart';
 

@@ -1,7 +1,7 @@
-import 'package:dart_conversion/class_mirror_extension.dart';
-import 'package:dart_conversion/collection_of.dart';
-import 'package:dart_conversion/convertable.dart';
-import 'package:dart_conversion/my_logger.dart';
+import '../../lib/src/class_mirror_extension.dart';
+import '../../lib/src/collection_of.dart';
+import '../../lib/src/convertable.dart';
+import '../../lib/src/my_logger.dart';
 import 'package:reflectable/mirrors.dart';
 import 'package:test/test.dart';
 

@@ -1,7 +1,7 @@
-import 'package:dart_conversion/convertable.dart';
-import 'package:dart_conversion/dart_conversion.dart';
-import 'package:dart_conversion/dart_conversion.old.dart';
-import 'package:dart_conversion/my_logger.dart';
+import '../../lib/src/convertable.dart';
+import '../../lib/src/dart_conversion.dart';
+import '../../lib/src/dart_conversion.old.dart';
+import '../../lib/src/my_logger.dart';
 import 'package:test/test.dart';
 
 import 'dart_conversion_test.reflectable.dart';

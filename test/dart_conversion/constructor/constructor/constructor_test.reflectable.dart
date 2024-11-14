@@ -3,7 +3,7 @@
 import 'dart:core';
 import 'constructor_test.dart' as prefix1;
 import 'dart:math' as prefix2;
-import 'package:dart_conversion/convertable.dart' as prefix0;
+import '../../../../lib/src/convertable.dart' as prefix0;
 
 // ignore_for_file: camel_case_types
 // ignore_for_file: implementation_imports

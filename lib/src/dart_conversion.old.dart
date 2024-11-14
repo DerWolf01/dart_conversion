@@ -6,8 +6,8 @@ import 'dart:io';
 import 'dart:mirrors';
 import 'dart:typed_data';
 
-import 'package:dart_conversion/collection_of.dart';
-import 'package:dart_conversion/my_logger.dart';
+import 'collection_of.dart';
+import 'my_logger.dart';
 
 export "dart_conversion.old.dart";
 export "method_service.old.dart";

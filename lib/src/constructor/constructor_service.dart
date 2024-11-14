@@ -1,12 +1,12 @@
-import 'package:dart_conversion/class_mirror_extension.dart';
-import 'package:dart_conversion/constructor/constructor.dart';
-import 'package:dart_conversion/constructor/constructor_arguments.dart';
-import 'package:dart_conversion/constructor/constructor_extension.dart';
-import 'package:dart_conversion/constructor/exception.dart';
-import 'package:dart_conversion/convertable.dart';
-import 'package:dart_conversion/dart_conversion.dart';
-import 'package:dart_conversion/collection_of.dart';
-import 'package:dart_conversion/my_logger.dart';
+import '../class_mirror_extension.dart';
+import 'constructor.dart';
+import 'constructor_arguments.dart';
+import 'constructor_extension.dart';
+import 'exception.dart';
+import '../convertable.dart';
+import '../dart_conversion.dart';
+import '../collection_of.dart';
+import '../my_logger.dart';
 import 'package:reflectable/reflectable.dart';
 
 class ConstructorService {
