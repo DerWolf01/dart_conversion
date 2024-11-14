@@ -10,6 +10,8 @@ extension ClassMirrorExtension on ClassMirror {
     print(this.declarations);
     for (final declaration in this.declarations.entries) {
       if (declaration.value is VariableMirror) {
+        myLogger.d(
+            "Found class attribute with name ${declaration.key} and metadata ${declaration.value.metadata}");
         declarations[declaration.key] = declaration.value as VariableMirror;
       }
     }
@@ -26,10 +28,8 @@ extension ClassMirrorExtension on ClassMirror {
       variables.entries.where((element) => names.contains(element.key)));
 
   /// Finds 1 class attribute using a name to be searched for
-  VariableMirror? findField(String name) => variables.entries
-      .where((element) => name.contains(element.key))
-      .firstOrNull
-      ?.value;
+  VariableMirror? findField(String name) =>
+      findFields([name]).values.firstOrNull;
 
   List<TypeMirror>? findTypeArguments(String fieldName) =>
       findField(fieldName)?.type.typeArguments;
@@ -40,28 +40,41 @@ extension ClassMirrorExtension on ClassMirror {
   CollectionOf? getCollectionOfUsingName(
     String name,
   ) {
+    CollectionOf? collectionOf;
     try {
       final field = findField(name);
       if (field == null) {
         throw ClassMirrorExtensionException(
             "No field with name ”$name\" was found in class $simpleName");
       }
-      final typeArguments = field.type.typeArguments;
 
-      if (typeArguments.isEmpty) {
+      final metadata = field.metadata;
+
+      collectionOf = metadata.whereType<CollectionOf>().firstOrNull;
+
+      if (collectionOf == null) {
+        myLogger.d(
+            "No @CollectionOf metadata found for the field $name of class $simpleName. This is the metadata list $metadata.");
         return null;
       }
-      if (field.type.reflectedType.toString().startsWith("Map") == true) {
-        return CollectionOf(
-            keyType: typeArguments.firstOrNull?.reflectedType,
-            valueType: typeArguments[1].reflectedType);
-      }
 
-      return CollectionOf(valueType: typeArguments.first.reflectedType);
-    } catch (e) {
-      myLogger.d(e, header: "ClassMirrorExtension.getCollectionOfUsingName");
+      // /// If the keyType of the Map is not being defined in the @CollectionOf anotation the library will dynamically generate it.
+      // if (field.type.reflectedType.toString().startsWith("Map") == true) {
+      //   if (collectionOf.keyType != null) {
+      //     return collectionOf;
+      //   }
+      //   return CollectionOf(
+      //       keyType: typeArguments.firstOrNull?.reflectedType,
+      //       valueType: collectionOf.runtimeType);
+      // }
+
+      return collectionOf;
+    } catch (e, s) {
+      myLogger.e(e,
+          header: "ClassMirrorExtension.getCollectionOfUsingName",
+          stackTrace: s);
     }
-    return null;
+    return collectionOf;
   }
 }
 

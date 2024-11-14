@@ -30,7 +30,9 @@ class Convertable extends Reflectable {
             newInstanceCapability,
             superclassQuantifyCapability,
             typeAnnotationQuantifyCapability,
-            typeAnnotationDeepQuantifyCapability);
+            typeAnnotationDeepQuantifyCapability, 
+            
+            );
 }
 
 /// A constant instance of the `Convertable` class.

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:dart_conversion/dart_conversion.old.dart';
 import 'package:dart_conversion/my_logger.dart';
-import 'package:test/test.dart';
 
 /// A list of transformers for List instances
 const listTransformer = <Type, ListTransformer>{
@@ -782,4 +781,227 @@ class TransformerException extends FormatException {
   TransformerException(super.message, super.source);
   @override
   String toString() => message;
+}
+
+Transformer? getTransformer(dynamic value) {
+  if (value is String) {
+    return StringTransformer();
+  } else if (value is int) {
+    return IntTransformer();
+  } else if (value is double) {
+    return DoubleTransformer();
+  } else if (value is bool) {
+    return BoolTransformer();
+  } else if (value is List<int>) {
+    return transformers[List<int>];
+  } else if (value is List<String>) {
+    return transformers[List<String>];
+  } else if (value is List<double>) {
+    return transformers[List<double>];
+  } else if (value is List<bool>) {
+    return transformers[List<bool>];
+  } else if (value is List<Map<dynamic, dynamic>>) {
+    return transformers[List<Map<dynamic, dynamic>>];
+  } else if (value is List<Map<dynamic, String>>) {
+    return transformers[List<Map<dynamic, String>>];
+  } else if (value is List<Map<dynamic, int>>) {
+    return transformers[List<Map<dynamic, int>>];
+  } else if (value is List<Map<dynamic, double>>) {
+    return transformers[List<Map<dynamic, double>>];
+  } else if (value is List<Map<dynamic, bool>>) {
+    return transformers[List<Map<dynamic, bool>>];
+  } else if (value is List<Map<String, dynamic>>) {
+    return transformers[List<Map<String, dynamic>>];
+  } else if (value is List<Map<String, String>>) {
+    return transformers[List<Map<String, String>>];
+  } else if (value is List<Map<String, int>>) {
+    return transformers[List<Map<String, int>>];
+  } else if (value is List<Map<String, double>>) {
+    return transformers[List<Map<String, double>>];
+  } else if (value is List<Map<String, bool>>) {
+    return transformers[List<Map<String, bool>>];
+  } else if (value is List<Map<int, dynamic>>) {
+    return transformers[List<Map<int, dynamic>>];
+  } else if (value is List<Map<int, String>>) {
+    return transformers[List<Map<int, String>>];
+  } else if (value is List<Map<int, int>>) {
+    return transformers[List<Map<int, int>>];
+  } else if (value is List<Map<int, double>>) {
+    return transformers[List<Map<int, double>>];
+  } else if (value is List<Map<int, bool>>) {
+    return transformers[List<Map<int, bool>>];
+  } else if (value is List<Map<double, dynamic>>) {
+    return transformers[List<Map<double, dynamic>>];
+  } else if (value is List<Map<double, String>>) {
+    return transformers[List<Map<double, String>>];
+  } else if (value is List<Map<double, int>>) {
+    return transformers[List<Map<double, int>>];
+  } else if (value is List<Map<double, double>>) {
+    return transformers[List<Map<double, double>>];
+  } else if (value is List<Map<double, bool>>) {
+    return transformers[List<Map<double, bool>>];
+  } else if (value is List<Map<bool, dynamic>>) {
+    return transformers[List<Map<bool, dynamic>>];
+  } else if (value is List<Map<bool, String>>) {
+    return transformers[List<Map<bool, String>>];
+  } else if (value is List<Map<bool, int>>) {
+    return transformers[List<Map<bool, int>>];
+  } else if (value is List<Map<bool, double>>) {
+    return transformers[List<Map<bool, double>>];
+  } else if (value is List<Map<bool, bool>>) {
+    return transformers[List<Map<bool, bool>>];
+  }
+  // Basic Map types
+  if (value is Map<dynamic, dynamic>) {
+    return transformers[Map<dynamic, dynamic>];
+  } else if (value is Map<dynamic, String>) {
+    return transformers[Map<dynamic, String>];
+  } else if (value is Map<dynamic, int>) {
+    return transformers[Map<dynamic, int>];
+  } else if (value is Map<dynamic, double>) {
+    return transformers[Map<dynamic, double>];
+  } else if (value is Map<dynamic, bool>) {
+    return transformers[Map<dynamic, bool>];
+  } else if (value is Map<String, dynamic>) {
+    return transformers[Map<String, dynamic>];
+  } else if (value is Map<String, String>) {
+    return transformers[Map<String, String>];
+  } else if (value is Map<String, int>) {
+    return transformers[Map<String, int>];
+  } else if (value is Map<String, double>) {
+    return transformers[Map<String, double>];
+  } else if (value is Map<String, bool>) {
+    return transformers[Map<String, bool>];
+  } else if (value is Map<int, dynamic>) {
+    return transformers[Map<int, dynamic>];
+  } else if (value is Map<int, String>) {
+    return transformers[Map<int, String>];
+  } else if (value is Map<int, int>) {
+    return transformers[Map<int, int>];
+  } else if (value is Map<int, double>) {
+    return transformers[Map<int, double>];
+  } else if (value is Map<int, bool>) {
+    return transformers[Map<int, bool>];
+  } else if (value is Map<double, dynamic>) {
+    return transformers[Map<double, dynamic>];
+  } else if (value is Map<double, String>) {
+    return transformers[Map<double, String>];
+  } else if (value is Map<double, int>) {
+    return transformers[Map<double, int>];
+  } else if (value is Map<double, double>) {
+    return transformers[Map<double, double>];
+  } else if (value is Map<double, bool>) {
+    return transformers[Map<double, bool>];
+  } else if (value is Map<bool, dynamic>) {
+    return transformers[Map<bool, dynamic>];
+  } else if (value is Map<bool, String>) {
+    return transformers[Map<bool, String>];
+  } else if (value is Map<bool, int>) {
+    return transformers[Map<bool, int>];
+  } else if (value is Map<bool, double>) {
+    return transformers[Map<bool, double>];
+  } else if (value is Map<bool, bool>) {
+    return transformers[Map<bool, bool>];
+  }
+
+  // Map with List values
+  else if (value is Map<String, List<dynamic>>) {
+    return transformers[Map<String, List<dynamic>>];
+  } else if (value is Map<String, List<String>>) {
+    return transformers[Map<String, List<String>>];
+  } else if (value is Map<String, List<int>>) {
+    return transformers[Map<String, List<int>>];
+  } else if (value is Map<String, List<double>>) {
+    return transformers[Map<String, List<double>>];
+  } else if (value is Map<String, List<bool>>) {
+    return transformers[Map<String, List<bool>>];
+  } else if (value is Map<int, List<dynamic>>) {
+    return transformers[Map<int, List<dynamic>>];
+  } else if (value is Map<int, List<String>>) {
+    return transformers[Map<int, List<String>>];
+  } else if (value is Map<int, List<int>>) {
+    return transformers[Map<int, List<int>>];
+  } else if (value is Map<int, List<double>>) {
+    return transformers[Map<int, List<double>>];
+  } else if (value is Map<int, List<bool>>) {
+    return transformers[Map<int, List<bool>>];
+  } else if (value is Map<double, List<dynamic>>) {
+    return transformers[Map<double, List<dynamic>>];
+  } else if (value is Map<double, List<String>>) {
+    return transformers[Map<double, List<String>>];
+  } else if (value is Map<double, List<int>>) {
+    return transformers[Map<double, List<int>>];
+  } else if (value is Map<double, List<double>>) {
+    return transformers[Map<double, List<double>>];
+  } else if (value is Map<double, List<bool>>) {
+    return transformers[Map<double, List<bool>>];
+  } else if (value is Map<bool, List<dynamic>>) {
+    return transformers[Map<bool, List<dynamic>>];
+  } else if (value is Map<bool, List<String>>) {
+    return transformers[Map<bool, List<String>>];
+  } else if (value is Map<bool, List<int>>) {
+    return transformers[Map<bool, List<int>>];
+  } else if (value is Map<bool, List<double>>) {
+    return transformers[Map<bool, List<double>>];
+  } else if (value is Map<bool, List<bool>>) {
+    return transformers[Map<bool, List<bool>>];
+  } else if (value is Map<dynamic, List<dynamic>>) {
+    return transformers[Map<dynamic, List<dynamic>>];
+  } else if (value is Map<dynamic, List<String>>) {
+    return transformers[Map<dynamic, List<String>>];
+  } else if (value is Map<dynamic, List<int>>) {
+    return transformers[Map<dynamic, List<int>>];
+  } else if (value is Map<dynamic, List<double>>) {
+    return transformers[Map<dynamic, List<double>>];
+  } else if (value is Map<dynamic, List<bool>>) {
+    return transformers[Map<dynamic, List<bool>>];
+  }
+
+  // Nested Map transformers
+  else if (value is Map<String, Map<String, dynamic>>) {
+    return transformers[Map<String, Map<String, dynamic>>];
+  } else if (value is Map<String, Map<String, String>>) {
+    return transformers[Map<String, Map<String, String>>];
+  } else if (value is Map<String, Map<String, int>>) {
+    return transformers[Map<String, Map<String, int>>];
+  } else if (value is Map<String, Map<String, double>>) {
+    return transformers[Map<String, Map<String, double>>];
+  } else if (value is Map<String, Map<String, bool>>) {
+    return transformers[Map<String, Map<String, bool>>];
+  } else if (value is Map<int, Map<int, dynamic>>) {
+    return transformers[Map<int, Map<int, dynamic>>];
+  } else if (value is Map<int, Map<int, String>>) {
+    return transformers[Map<int, Map<int, String>>];
+  } else if (value is Map<int, Map<int, int>>) {
+    return transformers[Map<int, Map<int, int>>];
+  } else if (value is Map<int, Map<int, double>>) {
+    return transformers[Map<int, Map<int, double>>];
+  } else if (value is Map<int, Map<int, bool>>) {
+    return transformers[Map<int, Map<int, bool>>];
+  } else if (value is Map<double, Map<double, dynamic>>) {
+    return transformers[Map<double, Map<double, dynamic>>];
+  } else if (value is Map<double, Map<double, String>>) {
+    return transformers[Map<double, Map<double, String>>];
+  } else if (value is Map<double, Map<double, int>>) {
+    return transformers[Map<double, Map<double, int>>];
+  } else if (value is Map<double, Map<double, double>>) {
+    return transformers[Map<double, Map<double, double>>];
+  } else if (value is Map<double, Map<double, bool>>) {
+    return transformers[Map<double, Map<double, bool>>];
+  } else if (value is Map<bool, Map<bool, dynamic>>) {
+    return transformers[Map<bool, Map<bool, dynamic>>];
+  } else if (value is Map<bool, Map<bool, String>>) {
+    return transformers[Map<bool, Map<bool, String>>];
+  } else if (value is Map<bool, Map<bool, int>>) {
+    return transformers[Map<bool, Map<bool, int>>];
+  } else if (value is Map<bool, Map<bool, double>>) {
+    return transformers[Map<bool, Map<bool, double>>];
+  } else if (value is Map<bool, Map<bool, bool>>) {
+    return transformers[Map<bool, Map<bool, bool>>];
+  } else if (value is Map<bool, Map<bool, bool>>) {
+    return transformers[Map<bool, Map<bool, bool>>];
+  }
+
+  // If no matching transformer is found, return null
+  return null;
 }

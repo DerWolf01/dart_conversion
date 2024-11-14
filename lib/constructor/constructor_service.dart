@@ -174,7 +174,7 @@ If they aren't marked as late the library will trow an exception.
           header: "ConstructorService.constructConstructorArguments");
 
       myLogger.i(
-          "Attempting to convert $argument of type ${argument.runtimeType} to named parameter type ${namedArgument.type.reflectedType}",
+          "Attempting to convert $argument of type ${classMirror.getCollectionOfUsingName(namedArgument.simpleName) ?? argument.runtimeType} to named parameter type ${namedArgument.type.reflectedType} with name ${namedArgument.simpleName}",
           header: "ConstructorService.constructConstructorArguments");
       constructorArguments.namedArguments[Symbol(name)] =
           dartConversion.convert(argument,

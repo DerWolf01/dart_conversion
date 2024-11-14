@@ -1,3 +1,4 @@
+import 'package:dart_conversion/class_mirror_extension.dart';
 import 'package:dart_conversion/constructor/constructor_service.dart';
 import 'package:dart_conversion/convertable.dart';
 import 'package:dart_conversion/exception.dart';
@@ -25,12 +26,14 @@ class DartConversion {
     }
 
     final transformer = transformers[finalTo];
-    final preDefinedValueTransformer = transformers[value];
+    final preDefinedValueTransformer = getTransformer(value);
 
     final valueTransformerIsPreDefined = preDefinedValueTransformer != null;
 
     /// If there is an available transformer for the provided value then the value isn't a dynamic class or model but rather one of the predefined classes in dart.
     if (valueTransformerIsPreDefined) {
+      myLogger.d("Value transformer is predefined.");
+
       /// If the transformer isn't null also the provided value will be transformed into one of the predefined objects that were referred to in the comment above.
       if (transformer != null) {
         myLogger.d(
@@ -82,16 +85,18 @@ class DartConversion {
         return mapToObject(value, type: to);
       }
     } else {
-      if (transformer == null) {
-        throw DartConversionException(
-            "No transformer for Type $finalTo found. ${value.runtimeType} $preDefinedValueTransformer");
-      }
+      myLogger.d("Value transformer isn't predefined.");
       myLogger.d(
           "Converting Object $value of type ${value.runtimeType} to $finalTo",
           header: "DartConversion");
 
       final objectMap = objectToMap(value);
-
+      if (transformer == null) {
+        myLogger.i(
+            "Converted $value of type ${value.runtimeType} to $objectMap of type $finalTo",
+            header: "DartConversion");
+        return objectMap as To;
+      }
       res = transformer.transform(objectMap);
     }
     myLogger.i(
@@ -110,17 +115,18 @@ class DartConversion {
       final reflection = convertable.reflect(object);
 
       return reflection.variables.map(
-        (key, value) {
+        (String key, VariableMirror value) {
           final reflectedValue = reflection.invokeGetter(key);
           late final dynamic convertedValue;
-          final transformer = transformers[reflectedValue.runtimeType];
+          final preDefinedTransformer = getTransformer(reflectedValue);
+          final hasCollectionOf =
+              reflection.type.getCollectionOfUsingName(key) != null;
           try {
-            myLogger.d(
-                "Key Value pair --> $key:$value. Trasnformer: $transformer. ",
+            myLogger.d("Key Value pair --> $key:$value.",
                 header: "DartConversion.objectToMap");
 
-            if (transformer != null) {
-              convertedValue = reflectedValue;
+            if (preDefinedTransformer != null && !hasCollectionOf) {
+              convertedValue = preDefinedTransformer.transform(reflectedValue);
             } else if (reflectedValue is List) {
               convertedValue = reflectedValue
                   .map((e) => dartConversion.convert<Map<String, dynamic>>(

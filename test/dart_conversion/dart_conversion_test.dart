@@ -12,7 +12,7 @@ abstract class TestUserBase {
       required this.mappedFriends});
 
   @CollectionOf(valueType: TestUser, keyType: String)
-  final Map<String, TestUser> mappedFriends;
+  final Map<String, dynamic> mappedFriends;
 }
 
 @convertable
@@ -22,7 +22,7 @@ class TestUser extends TestUserBase {
   final int id;
   final String lastName;
   @CollectionOf(valueType: TestUser)
-  final List<TestUser> friends;
+  final List<dynamic> friends;
 
   const TestUser(
       {required this.id,

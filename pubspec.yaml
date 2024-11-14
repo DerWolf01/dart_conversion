@@ -9,7 +9,7 @@ environment:
 # Add regular dependencies here.
 dependencies:
   logger: ^2.4.0
-  reflectable: ^4.0.12
+  reflectable: 
   # path: ^1.8.0
 
 dev_dependencies:

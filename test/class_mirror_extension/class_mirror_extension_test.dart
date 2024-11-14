@@ -1,5 +1,7 @@
 import 'package:dart_conversion/class_mirror_extension.dart';
+import 'package:dart_conversion/collection_of.dart';
 import 'package:dart_conversion/convertable.dart';
+import 'package:dart_conversion/my_logger.dart';
 import 'package:reflectable/mirrors.dart';
 import 'package:test/test.dart';
 
@@ -13,14 +15,18 @@ class TestUserBase {
 
 @convertable
 class TestUser extends TestUserBase {
-  const TestUser(this.names, super.ids, this.name, this.friends);
+  const TestUser(
+      this.names, super.ids, this.name, this.friends, this.friendsList);
   final List<String> names;
   final Map<String, int> friends;
   final String name;
+  @CollectionOf(valueType: TestUser)
+  final List<dynamic> friendsList;
 }
 
 void main() {
   initializeReflectable();
+  MyLogger.init(enabled: true);
   group("ClassMirrorExtension", () {
     test("variables", () {
       final variables =
@@ -89,5 +95,19 @@ void main() {
         expect(friendsValueTypeArgument?.reflectedType, int);
       },
     );
+
+    test("getCollectionOf", () {
+      final classMirror = convertable.reflectType(TestUser) as ClassMirror;
+      myLogger.w(classMirror.declarations.values
+              .where(
+                (element) => element.simpleName == "friendsList",
+              )
+              .firstOrNull
+              ?.runtimeType
+              .toString() ??
+          "");
+      expect(classMirror.getCollectionOfUsingName("friendsList"),
+          isA<CollectionOf>());
+    });
   });
 }
