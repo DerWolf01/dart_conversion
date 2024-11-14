@@ -8,6 +8,10 @@ import 'package:dart_conversion/my_logger.dart';
 import 'package:dart_conversion/transformer/transformer.dart';
 import 'package:reflectable/reflectable.dart';
 
+export 'class_mirror_extension.dart';
+export 'collection_of.dart';
+export 'convertable.dart';
+
 DartConversion get dartConversion => DartConversion();
 
 class DartConversion {
