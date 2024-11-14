@@ -20,6 +20,9 @@ class DartConversion {
 
   factory DartConversion() => _instance ??= DartConversion._();
 
+  static Map<String, VariableMirror> variables(ClassMirror classMirror) =>
+      classMirror.variables;
+
   /// This method aims to convert different type of objects or collections and also primtive datatypes to a chosen representation provided to the method head
   To convert<To>(dynamic value, {Type? to, CollectionOf? collectionOf}) {
     late final To res;
